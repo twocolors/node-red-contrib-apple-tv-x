@@ -134,7 +134,7 @@ module.exports = function (RED) {
         .catch(error => {
           pinCode = null;
           let msg = 'Wrong PIN Code please try again "Initiate Connection"';
-          if (error.message !== undefined && error.message.toString().match(/(attempt|rebooting)/i)) {
+          if (typeof (error.message) !== 'undefined' && error.message.toString().match(/(attempt|rebooting)/i)) {
             msg = error.message;
           }
           res.json({ error: msg });

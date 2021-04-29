@@ -35,7 +35,7 @@ module.exports = function (RED) {
     }
 
     node.onMessage = function (msg) {
-      if (msg && msg.payload !== undefined) {
+      if (msg && typeof (msg.payload) !== 'undefined') {
         if (msg.type == 4) {
           node.isPlaying = isPlaying(msg.payload);
         }
@@ -43,7 +43,9 @@ module.exports = function (RED) {
           node.isOn = isOn(msg.payload);
         }
 
-        node.currentApp = msg.payload.playerPath?.client?.bundleIdentifier;
+        if (typeof (msg.payload.playerPath.client.bundleIdentifier) !== 'undefined') {
+          node.currentApp = msg.payload.playerPath.client.bundleIdentifier;
+        }
 
         node.send({payload: {isOn: node.isOn, isPlaying: node.isPlaying, currentApp: node.currentApp}});
       }
