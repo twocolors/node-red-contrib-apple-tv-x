@@ -1,0 +1,33 @@
+<script type="text/javascript">
+  RED.nodes.registerType('atvx-in', {
+    category: 'Apple TV',
+    color: '#FFAAAA',
+    outputs: 1,
+    icon: 'font-awesome/fa-television',
+    align: 'left',
+    defaults: {
+      name: { value: '' },
+      token: { type: 'atvx-config', required: true }
+    },
+    label: function () {
+      return this.name || 'in';
+    },
+    paletteLabel: "in"
+  });
+</script>
+
+<script type="text/html" data-template-name="atvx-in">
+  <div class="form-row">
+    <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+    <input type="text" id="node-input-name" placeholder="Name">
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-token"><i class="fa fa-tv"></i> Apple TV</label>
+    <input type="text" id="node-input-token">
+  </div>
+</script>
+
+<script type="text/html" data-help-name="atvx-in">
+  <p>Events from Apple TV on msg.payload</p>
+</script>

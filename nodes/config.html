@@ -1,0 +1,124 @@
+<script type="text/html" data-template-name="atvx-config">
+  <div class="form-row">
+    <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+    <input type="text" id="node-config-input-name" placeholder="Name">
+  </div>
+
+  <div class="form-row">
+    <label for="node-config-input-atv"><i class="fa fa-tv"></i> Apple TV</label>
+    <input type="text" id="node-config-input-atv" placeholder="Apple TV">
+  </div>
+
+  <div class="form-row">
+    <label>
+      <i class="fa fa-retweet"></i>
+      Pairing
+    </label>
+    <a id="node-config-input-conn" class="editor-button" title="Select an Apple TV above">
+      Initiate Connection
+    </a>
+    <label style="margin-left: 10px; width: 30px !important;">
+      Pin:
+    </label>
+    <input type="number" id="node-config-input-pincode" style="width: 100px; margin-left: 10px;">
+    <a id="node-config-input-pair" style="vertical-align: middle; margin-left: 10px;" class="editor-button">
+      <i class="fa fa-check-square"></i>
+    </a>
+</div>
+
+<div class="form-row">
+  <label for="node-config-input-token"><i class="fa fa-key"></i> Token</label>
+  <input type="text" id="node-config-input-token" placeholder="Token">
+</div>
+
+</script>
+
+<script type="text/html" data-help-name="atvx-config">
+  <p>Connection to Apple TV</p>
+  <h3>Configuration</h3>
+  <dl class="message-properties">
+    <dt class="optional">Name<span class="property-type">string</span></dt>
+    <dd>Choose any name to identify your node</dd>
+    <dt class="required">Token<span class="property-type">string</span></dt>
+    <dd>Apple TV pairing Token</dd>
+  </dl>
+</script>
+
+<script type="text/javascript">
+  RED.nodes.registerType('atvx-config', {
+    category: 'config',
+    defaults: {
+      name: { value: '' },
+    },
+    credentials: {
+      atv: { type: 'text', required: true },
+      token: { type: 'text', required: true }
+    },
+    label: function () {
+      return (this.name || 'Apple TV');
+    },
+    oneditprepare: function () {
+      let node = this;
+      let discover = false;
+
+      var value = $('#node-config-input-atv').val();
+
+      setTimeout(function () {
+        if (discover) return;
+        discover = true;
+
+        $('#node-config-input-atv').replaceWith('<select id="node-config-input-atv" style="width: 70%;"></select>');
+        if (!value) {
+          $('#node-config-input-atv').append('<option value="discover">Discover ...</option>');
+        } else {
+          $('#node-config-input-atv').append('<option value="'+value+'">'+value.split(':')[0]+'</option>');
+        }
+
+        $.getJSON('atvx/discover').done(function (devices) {
+          if (devices.length === 0) {
+            RED.notify('No devices retrieved, check your Apple TVs connection settings', 'error');
+            return;
+          }
+
+          if (!value) {
+            $('option[value="discover"]').remove();
+            $('#node-config-input-atv').append('<option value=""></option>');
+          }
+
+          devices.forEach(function (device) {
+            if (!value || value.split(':')[1] != device.uid) {
+              $('#node-config-input-atv').append('<option value="' + device.name + ':' + device.uid + '" data-name="' + device.name + '" data-id="' + device.uid + '">' + device.name + '</option>');
+            }
+          });
+
+          if (value) $('#node-config-input-atv').val(value);
+        });
+
+      }, 150);
+
+      $('#node-config-input-pair').click(function() {
+        let pinCode = $('#node-config-input-pincode').val();
+        if (pinCode) {
+          $.getJSON('atvx/pincode', {
+            pincode: pinCode
+          });
+        }
+      });
+
+      $('#node-config-input-conn').click(function() {
+        let atv = $('#node-config-input-atv').val();
+        if (atv) {
+          $.getJSON('atvx/pair', {
+            atv: atv,
+            }).done(function (data) {
+              if (!data.error) {
+                if (data.token) $('#node-config-input-token').val(data.token);
+              } else {
+                RED.notify(data.error, 'error');
+              }
+            });
+        }
+      });
+    }
+  });
+</script>

@@ -1,0 +1,48 @@
+<script type="text/javascript">
+  RED.nodes.registerType('atvx-out', {
+    category: 'Apple TV',
+    color: '#FFAAAA',
+    inputs: 1,
+    icon: 'font-awesome/fa-television',
+    align: 'right',
+    defaults: {
+      name: { value: '' },
+      token: { type: 'atvx-config', required: true }
+    },
+    label: function () {
+      return this.name || 'out';
+    },
+    paletteLabel: "out"
+  });
+</script>
+
+<script type="text/html" data-template-name="atvx-out">
+  <div class="form-row">
+    <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+    <input type="text" id="node-input-name" placeholder="Name">
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-token"><i class="fa fa-tv"></i> Apple TV</label>
+    <input type="text" id="node-input-token">
+  </div>
+</script>
+
+<script type="text/html" data-help-name="atvx-out">
+  <p>A very simple node that takes the following commands as a string on msg.payload</p>
+  <ul>
+  <li>Up</li>
+  <li>Down</li>
+  <li>Left</li>
+  <li>Right</li>
+  <li>Menu</li>
+  <li>Play</li>
+  <li>Pause</li>
+  <li>Next</li>
+  <li>Previous</li>
+  <li>Suspend</li>
+  <li>Select</li>
+  <li>LongTv</li>
+  <li>Tv</li>
+  </ul>
+</script>
