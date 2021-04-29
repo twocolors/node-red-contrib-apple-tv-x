@@ -2,8 +2,8 @@
   "author": "D",
   "license": "GPL",
   "name": "node-red-contrib-apple-tv-x",
-  "description": "Plugin for controlling Apple TVs in Node-RED",
-  "version": "0.2.6",
+  "description": "Nodes for controlling Apple TVs in Node-RED",
+  "version": "0.2.7",
   "node-red": {
     "nodes": {
       "atvx-config": "nodes/config.js",
@@ -26,6 +26,9 @@
     "node-red",
     "apple",
     "tv",
-    "mrp"
+    "mrp",
+    "appletv",
+    "apple tv",
+    "media remote"
   ]
 }

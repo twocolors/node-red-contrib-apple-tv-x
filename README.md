@@ -3,7 +3,7 @@
 
 ## About
 
-Plugin for controlling Apple TVs in Node-RED.
+Nodes for controlling Apple TVs in Node-RED.
 
 Supported models are:
 * Apple TV HD (Apple TV 4)
