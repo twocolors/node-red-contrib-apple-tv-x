@@ -12,7 +12,8 @@
     }
   },
   "dependencies": {
-    "node-appletv-x": "^1.0.19"
+    "node-appletv-x": "^1.0.19",
+    "lodash": "^4.17.21"
   },
   "bugs": {
     "url": "https://github.com/twocolors/node-red-contrib-apple-tv-x/issues"

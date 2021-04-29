@@ -1,5 +1,7 @@
 'use strict';
 
+var _ = require('lodash/object');
+
 module.exports = function (RED) {
   function ATVXIn(config) {
     RED.nodes.createNode(this, config);
@@ -43,9 +45,7 @@ module.exports = function (RED) {
           node.isOn = isOn(msg.payload);
         }
 
-        if (typeof (msg.payload.playerPath.client.bundleIdentifier) !== 'undefined') {
-          node.currentApp = msg.payload.playerPath.client.bundleIdentifier;
-        }
+        node.currentApp = _.get(msg.payload, 'playerPath.client.bundleIdentifier', '');
 
         node.send({payload: {isOn: node.isOn, isPlaying: node.isPlaying, currentApp: node.currentApp}});
       }
