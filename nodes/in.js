@@ -45,7 +45,7 @@ module.exports = function (RED) {
           node.isOn = isOn(msg.payload);
         }
 
-        node.currentApp = _.get(msg.payload, 'playerPath.client.bundleIdentifier', '');
+        node.currentApp = _.get(msg.payload, 'playerPath.client.bundleIdentifier', node.currentApp);
 
         node.send({payload: {isOn: node.isOn, isPlaying: node.isPlaying, currentApp: node.currentApp}});
       }

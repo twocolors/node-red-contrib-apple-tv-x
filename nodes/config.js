@@ -13,6 +13,7 @@ module.exports = function (RED) {
       node.token = this.credentials.token;
       node.device = null;
       node.timer = null;
+      node.heartbeat = null
 
       function statusUpdate(obj) {
         node.emit('statusUpdate', obj);
@@ -41,10 +42,16 @@ module.exports = function (RED) {
             device.on('close', () => {
               statusUpdate({ "color": "red", "text": "disconnected" });
 
+              // heartbeat
+              if (node.heartbeat) {
+                clearInterval(node.heartbeat);
+                node.heartbeat = null;
+              }
+
               if (node.device) {
                 node.device.closeConnection();
+                node.device = null;
               }
-              node.device = null;
 
               // reconnect
               node.timer = setTimeout(connect, 30 * 1000, node.token);
@@ -56,6 +63,25 @@ module.exports = function (RED) {
             // console.log(error);
             node.error('Bad token, re-Pairing Apple TV');
           });
+
+        if (node.device) {
+          try {
+            await node.device.requestPlaybackQueue({
+              location: 0,
+              length: 1,
+              includeMetadata: true,
+              includeLyrics: true,
+              includeLanguageOptions: true
+            });
+          } catch (_) { }
+
+          // heartbeat
+          node.heartbeat = setInterval(async function() {
+            try {
+              await node.device.sendIntroduction();
+            } catch (_) { }
+          }, 60 * 1000);
+        }
 
         return node.device;
       }
