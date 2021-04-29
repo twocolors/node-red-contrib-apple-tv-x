@@ -3,7 +3,7 @@
   "license": "GPL",
   "name": "node-red-contrib-apple-tv-x",
   "description": "Nodes for controlling Apple TVs in Node-RED",
-  "version": "0.2.7",
+  "version": "0.2.8",
   "node-red": {
     "nodes": {
       "atvx-config": "nodes/config.js",
