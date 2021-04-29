@@ -35,7 +35,7 @@ module.exports = function (RED) {
     }
 
     node.onMessage = function (msg) {
-      if (msg) {
+      if (msg && msg.payload !== undefined) {
         if (msg.type == 4) {
           node.isPlaying = isPlaying(msg.payload);
         }
