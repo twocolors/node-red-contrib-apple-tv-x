@@ -69,8 +69,6 @@
 
         $('#node-config-input-atv').replaceWith('<select id="node-config-input-atv" style="width: 70%;"></select>');
         if (!value) {
-          $('#node-config-input-atv').append('<option value="discover">Discover ...</option>');
-        } else {
           $('#node-config-input-atv').append('<option value="'+value+'">'+value.split(':')[0]+'</option>');
         }
 
@@ -80,10 +78,9 @@
             return;
           }
 
-          if (!value) {
-            $('option[value="discover"]').remove();
-            $('#node-config-input-atv').append('<option value=""></option>');
-          }
+          // if (!value) {
+          //   $('#node-config-input-atv').append('<option value=""></option>');
+          // }
 
           devices.forEach(function (device) {
             if (!value || value.split(':')[1] != device.uid) {

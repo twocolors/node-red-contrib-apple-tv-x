@@ -1,6 +1,8 @@
 'use strict';
 
 const ATVx = require('node-appletv-x');
+const mDnsSd = require('node-dns-sd');
+const _ = require('lodash/object');
 
 module.exports = function (RED) {
   let pinCode = null;
@@ -76,7 +78,7 @@ module.exports = function (RED) {
           } catch (_) { }
 
           // heartbeat
-          node.heartbeat = setInterval(async function() {
+          node.heartbeat = setInterval(async function () {
             try {
               await node.device.sendIntroduction();
             } catch (_) { }
@@ -101,16 +103,44 @@ module.exports = function (RED) {
     }
   });
 
+  function _uid(device) {
+    let uid = false
+    let additionals = _.get(device, 'packet.additionals', false);
+    if (additionals) {
+      additionals.forEach(async (elm) => {
+        let modelname = _.get(elm, 'rdata.ModelName', '');
+        if (typeof (elm.type) !== 'undefined' && elm.type == 'TXT' && modelname.match(/apple/i)) {
+          uid = _.get(elm, 'rdata.UniqueIdentifier', false);
+        }
+      });
+    }
+    return uid;
+  }
+
   RED.httpAdmin.get('/atvx/discover', (req, res) => {
-    ATVx.scan().then(list => {
+    mDnsSd.discover({ name: '_mediaremotetv._tcp.local', quick: true,
+    }).then((device_list) => {
       let devices = []
 
-      list.forEach(async (device) => {
-        devices.push({ name: device.name, uid: device.uid });
+      device_list.forEach(async (device) => {
+        let uid = _uid(device);
+        if (uid) {
+          devices.push({ name: device.modelName, uid: uid });
+        }
       });
 
       res.json(devices);
     });
+
+    // ATVx.scan().then(list => {
+    //   let devices = []
+
+    //   list.forEach(async (device) => {
+    //     devices.push({ name: device.name, uid: device.uid });
+    //   });
+
+    //   res.json(devices);
+    // });
   });
 
   RED.httpAdmin.get('/atvx/pincode', (req, res) => {
