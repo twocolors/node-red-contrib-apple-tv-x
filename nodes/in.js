@@ -43,6 +43,10 @@ module.exports = function (RED) {
         }
         if (msg.type == 15) {
           node.isOn = isOn(msg.payload);
+
+          if (node.isOn === false) {
+            node.isPlaying = false;
+          }
         }
 
         node.currentApp = _.get(msg.payload, 'playerPath.client.bundleIdentifier', node.currentApp);

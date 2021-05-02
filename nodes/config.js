@@ -21,11 +21,11 @@ module.exports = function (RED) {
         node.emit('statusUpdate', obj);
       }
 
-      async function connect(token) {
+      async function setConnect(token) {
         let credentials = ATVx.parseCredentials(token);
         let uniqueIdentifier = credentials.uniqueIdentifier;
 
-        node.device = await ATVx.scan(uniqueIdentifier)
+        node.device = await ATVx.scan(uniqueIdentifier, 1.5)
           .then(devices => {
             statusUpdate({ "color": "yellow", "text": "connecting ..." });
 
@@ -56,7 +56,12 @@ module.exports = function (RED) {
               }
 
               // reconnect
-              node.timer = setTimeout(connect, 30 * 1000, node.token);
+              node.timer = setTimeout(setConnect, 15 * 1000, node.token);
+            });
+
+            device.on('error', () => {
+              // reconnect
+              node.timer = setTimeout(setConnect, 15 * 1000, node.token);
             });
 
             return device.openConnection(credentials);
@@ -91,7 +96,7 @@ module.exports = function (RED) {
       node.on('close', function () { pinCode = null });
 
       if (typeof (node.token) !== 'undefined') {
-        connect(node.token);
+        setConnect(node.token);
       }
     }
   }
@@ -151,10 +156,10 @@ module.exports = function (RED) {
   });
 
   RED.httpAdmin.get('/atvx/pair', (req, res) => {
-    let uid = req.query.atv.split(':')[1];
+    let uniqueIdentifier = req.query.atv.split(':')[1];
 
-    if (uid) {
-      ATVx.scan(uid).then(devices => {
+    if (uniqueIdentifier) {
+      ATVx.scan(uniqueIdentifier, 1.5).then(devices => {
 
         return devices[0].openConnection()
           .then(device => {
