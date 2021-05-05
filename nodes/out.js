@@ -25,7 +25,7 @@ module.exports = function (RED) {
       if (node.controller.device) {
         let command = msg.payload.replace(/(?:^|\s|["'([{])+\S/g, match => match.toUpperCase());
         let key = appletv_1.AppleTV.Key[command];
-        if (key) {
+        if (typeof (key) !== 'undefined') {
           node.controller.device.sendKeyCommand(key);
         }
       }
