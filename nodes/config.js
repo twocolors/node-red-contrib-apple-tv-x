@@ -1,8 +1,6 @@
 'use strict';
 
 const ATVx = require('node-appletv-x');
-// const mDnsSd = require('node-dns-sd');
-// const _ = require('lodash/object');
 
 module.exports = function (RED) {
   let pinCode = null;
@@ -95,8 +93,8 @@ module.exports = function (RED) {
 
       node.on('close', function () { pinCode = null });
 
-      if (typeof (node.token) !== 'undefined') {
-        setConnect(node.token);
+      if (typeof (node.token) !== 'undefined' && node.token) {
+        setTimeout(setConnect, 1.5 * 1000, node.token);
       }
     }
   }
@@ -108,44 +106,18 @@ module.exports = function (RED) {
     }
   });
 
-  // function _uid(device) {
-  //   let uid = false
-  //   let additionals = _.get(device, 'packet.additionals', false);
-  //   if (additionals) {
-  //     additionals.forEach(async (elm) => {
-  //       let modelname = _.get(elm, 'rdata.ModelName', '');
-  //       if (typeof (elm.type) !== 'undefined' && elm.type == 'TXT' && modelname.match(/apple/i)) {
-  //         uid = _.get(elm, 'rdata.UniqueIdentifier', false);
-  //       }
-  //     });
-  //   }
-  //   return uid;
-  // }
-
   RED.httpAdmin.get('/atvx/discover', (req, res) => {
-    // mDnsSd.discover({ name: '_mediaremotetv._tcp.local', quick: true,
-    // }).then((device_list) => {
-    //   let devices = []
+    if (req) {
+      ATVx.scan(undefined, 1.5).then(device_list => {
+        let devices = []
 
-    //   device_list.forEach(async (device) => {
-    //     let uid = _uid(device);
-    //     if (uid) {
-    //       devices.push({ name: device.modelName, uid: uid });
-    //     }
-    //   });
+        device_list.forEach(async (device) => {
+          devices.push({ name: device.name, uid: device.uid });
+        });
 
-    //   res.json(devices);
-    // });
-
-    ATVx.scan(undefined, 1.5).then(device_list => {
-      let devices = []
-
-      device_list.forEach(async (device) => {
-        devices.push({ name: device.name, uid: device.uid });
+        res.json(devices);
       });
-
-      res.json(devices);
-    });
+    }
   });
 
   RED.httpAdmin.get('/atvx/pincode', (req, res) => {

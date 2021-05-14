@@ -78,10 +78,6 @@
             return;
           }
 
-          // if (!value) {
-          //   $('#node-config-input-atv').append('<option value=""></option>');
-          // }
-
           devices.forEach(function (device) {
             if (!value || value.split(':')[1] != device.uid) {
               $('#node-config-input-atv').append('<option value="' + device.name + ':' + device.uid + '" data-name="' + device.name + '" data-id="' + device.uid + '">' + device.name + '</option>');
