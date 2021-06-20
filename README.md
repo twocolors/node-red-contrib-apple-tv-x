@@ -34,6 +34,10 @@ A very simple node that takes the following commands as a string on msg.payload
 -   Select
 -   LongTv
 -   Tv
+-   Wake
+-   Home
+-   VolumeUp
+-   VolumeDown
 
 ### Input
 Events from Apple TV on msg.payload
