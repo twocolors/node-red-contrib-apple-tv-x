@@ -131,6 +131,11 @@ module.exports = function (RED) {
         node.emit('updateMessage', $msg);
       });
 
+      node.device.on('error', function (msg) {
+        node.updateStatus({ "color": "red", "text": "error" });
+        node.error(msg);
+      });
+
       // heartbeat
       node.heartbeat = setInterval(async () => {
         try {

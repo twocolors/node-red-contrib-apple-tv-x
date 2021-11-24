@@ -6,7 +6,7 @@ module.exports = function (RED) {
     RED.nodes.createNode(this, n);
 
     this.controller = RED.nodes.getNode(n.atvx);
-    this.backend = controller.backend;
+    this.backend = this.controller.backend;
     this.state = {
       dateTime: null,
       hash: null,
