@@ -7,7 +7,7 @@
     align: 'right',
     defaults: {
       name: { value: '' },
-      token: { type: 'atvx-config', required: true }
+      atvx: { type: 'atvx-config', required: true }
     },
     label: function () {
       return this.name || 'out';
@@ -23,26 +23,34 @@
   </div>
 
   <div class="form-row">
-    <label for="node-input-token"><i class="fa fa-tv"></i> Apple TV</label>
-    <input type="text" id="node-input-token">
+    <label for="node-input-atvx"><i class="fa fa-tv"></i> Apple TV</label>
+    <input type="text" id="node-input-atvx">
   </div>
 </script>
 
 <script type="text/html" data-help-name="atvx-out">
   <p>A very simple node that takes the following commands as a string on msg.payload</p>
   <ul>
-  <li>Up</li>
-  <li>Down</li>
-  <li>Left</li>
-  <li>Right</li>
-  <li>Menu</li>
-  <li>Play</li>
-  <li>Pause</li>
-  <li>Next</li>
-  <li>Previous</li>
-  <li>Suspend</li>
-  <li>Select</li>
-  <li>LongTv</li>
-  <li>Tv</li>
+  <li>down</li>
+  <li>home</li>
+  <li>homeHold</li>
+  <li>left</li>
+  <li>menu</li>
+  <li>next</li>
+  <li>pause</li>
+  <li>play</li>
+  <li>playPause</li>
+  <li>previous</li>
+  <li>right</li>
+  <li>select</li>
+  <li>skipBackward</li>
+  <li>skipForward</li>
+  <li>stop</li>
+  <li>suspend</li>
+  <li>topMenu</li>
+  <li>up</li>
+  <li>volumeDown</li>
+  <li>volumeUp</li>
+  <li>wakeup</li>
   </ul>
 </script>
