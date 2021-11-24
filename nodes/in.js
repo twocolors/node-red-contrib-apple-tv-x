@@ -5,10 +5,25 @@ module.exports = function (RED) {
   function ATVxIn(n) {
     RED.nodes.createNode(this, n);
 
-    this.controller = RED.nodes.getNode(n.token);
-    this.isOn = false;
-    this.isPlaying = false;
-    this.currentApp = '';
+    this.controller = RED.nodes.getNode(n.atvx);
+    this.backend = controller.backend;
+    this.state = {
+      dateTime: null,
+      hash: null,
+      mediaType: null,
+      deviceState: null,
+      title: null,
+      artist: null,
+      album: null,
+      genre: null,
+      totalTime: null,
+      position: null,
+      shuffle: null,
+      repeat: null,
+      app: null,
+      appId: null,
+      powerState: null
+    }
 
     let node = this;
     node.status({});
@@ -16,18 +31,18 @@ module.exports = function (RED) {
     function isOn(payload) {
       // If the Apple TV is not a proxy for AirPlay playback, the logicalDeviceCount determines the state
       if (payload.logicalDeviceCount > 0 && !payload.isProxyGroupPlayer) {
-        return true;
+        return 'on';
       }
       // If the Apple TV is a proxy for AirPlay playback, the logicalDeviceCount and the AirPlay state determine the state
       if (payload.logicalDeviceCount > 0 && payload.isProxyGroupPlayer && payload.isAirplayActive) {
-        return true;
+        return 'on';
       }
-      return false;
+      return 'off';
     }
 
     function isPlaying(payload) {
       // Gets the new playing state
-      return payload.playbackState == 1;
+      return payload.playbackState == 1 ? 'playing' : 'stopped';
     }
 
     node.onStatus = function (obj) {
@@ -36,29 +51,34 @@ module.exports = function (RED) {
       }
     }
 
-    node.onMessage = function (msg) {
+    node.onMessageNative = function (msg) {
       if (msg && typeof (msg.payload) !== 'undefined') {
         if (msg.type == 4) {
-          node.isPlaying = isPlaying(msg.payload);
+          node.state.deviceState = isPlaying(msg.payload);
         }
         if (msg.type == 15) {
-          node.isOn = isOn(msg.payload);
+          node.state.powerState = isOn(msg.payload);
 
-          if (node.isOn === false) {
-            node.isPlaying = false;
+          if (node.state.powerState == 'off') {
+            node.state.deviceState = 'idle';
           }
         }
 
-        node.currentApp = _.get(msg.payload, 'playerPath.client.bundleIdentifier', node.currentApp);
+        node.state.appId = _.get(msg.payload, 'playerPath.client.bundleIdentifier', node.currentApp);
 
-        node.send({ payload: { isOn: node.isOn, isPlaying: node.isPlaying, currentApp: node.currentApp } });
+        node.send({ payload: node.state });
       }
+    }
+
+    node.onMessagePyatv = function (msg) {
+      _.merge(node.state, msg);
+      node.send({ payload: node.state });
     }
 
     if (node.controller) {
       node.onStatus({ "color": "grey", "text": "initiate ..." });
       node.controller.on('updateStatus', node.onStatus);
-      node.controller.on('updateMessage', node.onMessage);
+      node.controller.on('updateMessage', (node.backend == 'native' ? node.onMessageNative : node.onMessagePyatv));
     }
   }
   RED.nodes.registerType("atvx-in", ATVxIn);

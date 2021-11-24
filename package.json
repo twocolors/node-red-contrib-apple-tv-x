@@ -13,7 +13,9 @@
   },
   "dependencies": {
     "node-appletv-x": "ikhilko/node-appletv-x#master",
-    "lodash": "^4.17.21"
+    "lodash": "^4.17.21",
+    "@sebbo2002/node-pyatv": "^4.1.0",
+    "semver": "^7.3.5"
   },
   "bugs": {
     "url": "https://github.com/twocolors/node-red-contrib-apple-tv-x/issues"
@@ -30,6 +32,8 @@
     "mrp",
     "appletv",
     "apple tv",
-    "media remote"
+    "media remote",
+    "pyatv",
+    "atv"
   ]
 }

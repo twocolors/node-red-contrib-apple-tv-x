@@ -1,16 +1,21 @@
 module.exports = function (RED) {
   'use strict';
-  const atvx = require('node-appletv-x');
+  const atvx  = require('node-appletv-x');
+  const pyatv = require('@sebbo2002/node-pyatv').default;
+  const semver = require('semver');
 
   let pinCode = null;
 
   function ATVxConfig(n) {
     RED.nodes.createNode(this, n);
 
-    this.device = null;
+    this.device    = null;
     this.reconnect = null;
     this.heartbeat = null
-    this.token = this.credentials.token;
+    this.backend   = n.backend;
+    this.atv       = this.credentials.atv;
+    this.token     = this.credentials.token;
+    this.companion = n.companion;
 
     let node = this;
 
@@ -18,68 +23,66 @@ module.exports = function (RED) {
       node.emit('updateStatus', obj);
     }
 
-    node.doConnect = async function (token) {
+    node.doConnectNative = async function (token) {
       let credentials = atvx.parseCredentials(token);
       let uniqueIdentifier = credentials.uniqueIdentifier;
 
-      node.device = await atvx.scan(uniqueIdentifier, 1.5)
-        .then(devices => {
-          node.updateStatus({ "color": "yellow", "text": "connecting ..." });
+      node.device = await atvx.scan(uniqueIdentifier, 1.5).then(devices => {
+        node.updateStatus({ "color": "yellow", "text": "connecting ..." });
 
-          let device = devices[0];
+        let device = devices[0];
 
-          // emit message
-          device.on('message', function (msg) {
-            node.emit('updateMessage', msg);
-          });
+        // emit message
+        device.on('message', function (msg) {
+          node.emit('updateMessage', msg);
+        });
 
-          // emit connect
-          device.on('connect', () => {
-            node.updateStatus({ "color": "green", "text": "connected" });
+        // emit connect
+        device.on('connect', () => {
+          node.updateStatus({ "color": "green", "text": "connected" });
 
-            // reconnect
-            clearTimeout(node.reconnect);
-          });
+          // reconnect
+          clearTimeout(node.reconnect);
+        });
 
-          // emit close
-          device.on('close', () => {
-            node.updateStatus({ "color": "red", "text": "disconnected" });
+        // emit close
+        device.on('close', () => {
+          node.updateStatus({ "color": "red", "text": "disconnected" });
 
-            // heartbeat
-            if (node.heartbeat) {
-              clearInterval(node.heartbeat);
-              node.heartbeat = null;
-            }
+          // heartbeat
+          if (node.heartbeat) {
+            clearInterval(node.heartbeat);
+            node.heartbeat = null;
+          }
 
-            // connect
-            if (node.device) {
-              node.device.closeConnection();
-              node.device = null;
-            }
+          // connect
+          if (node.device) {
+            node.device.closeConnection();
+            node.device = null;
+          }
 
-            // reconnect
-            // if (!node.reconnect) {
-            //   node.reconnect = setTimeout(node.doConnect, 15 * 1000, node.token);
-            // }
-          });
+          // reconnect
+          // if (!node.reconnect) {
+          //   node.reconnect = setTimeout(node.doConnectNative, 15 * 1000, node.token);
+          // }
+        });
 
-          device.on('error', () => {
-            // reconnect
-            if (!node.reconnect) {
-              node.reconnect = setTimeout(node.doConnect, 15 * 1000, node.token);
-            }
-          });
-
-          return device.openConnection(credentials);
-        })
-        .catch(error => {
-          // console.log(error);
-          node.error('Bad token (re-Pairing Apple TV) or Disconnected');
+        device.on('error', () => {
           // reconnect
           if (!node.reconnect) {
-            node.reconnect = setTimeout(node.doConnect, 15 * 1000, node.token);
+            node.reconnect = setTimeout(node.doConnectNative, 15 * 1000, node.token);
           }
         });
+
+        return device.openConnection(credentials);
+      }).catch(error => {
+        // console.log(error);
+        node.error('Bad token (re-Pairing Apple TV) or Disconnected');
+        // reconnect
+        if (!node.reconnect) {
+          node.reconnect = setTimeout(node.doConnectNative, 15 * 1000, node.token);
+        }
+      });
 
       if (node.device) {
         try {
@@ -103,12 +106,70 @@ module.exports = function (RED) {
       return node.device;
     }
 
-    if (this.token) {
-      setTimeout(node.doConnect, 1.5 * 1000, this.token);
+    node.doDisconnectNative = async function () {
+      if (node.device) {
+        node.device.closeConnection();
+        node.device = null;
+      }
     }
 
-    this.on('close', () => {
+    node.doConnectPyatv = async function (id, airplay, companion) {
+      if (!node.device) {
+        node.device = pyatv.device({id: id, airplayCredentials: airplay, companionCredentials: companion});
+      }
+
+      node.device.on('update', function (msg) {
+        if (msg.values.key != 'dateTime') {
+          node.updateStatus({ "color": "green", "text": "connected" });
+        }
+        let $key = msg.values.key;
+        let $new = msg.values.new;
+
+        let $msg = new Object;
+        $msg[$key] = $new;
+
+        node.emit('updateMessage', $msg);
+      });
+
+      // heartbeat
+      node.heartbeat = setInterval(async () => {
+        try {
+          let msg = await node.device.getState();
+          node.emit('updateMessage', msg);
+        } catch (_) { }
+      }, 60 * 1000);
+    }
+
+    node.doDisconnectPyatv = async function () {
+      // heartbeat
+      if (node.heartbeat) {
+        clearInterval(node.heartbeat);
+        node.heartbeat = null;
+      }
+
+      if (node.device) {
+        node.device.off('update', () => {});
+        node.device = null;
+      }
+    }
+
+    // main
+    if (node.atv && node.token) {
+      if (node.backend == 'native') {
+        setTimeout(node.doConnectNative, 1.5 * 1000, node.token);
+      } else {
+        let id = node.atv.split(';')[1];
+        setTimeout(node.doConnectPyatv, 1.5 * 1000, id, node.token, node.companion);
+      }
+    }
+
+    node.on('close', () => {
       pinCode = null;
+      if (node.backend == 'native') {
+        node.doDisconnectNative;
+      } else {
+        node.doDisconnectPyatv;
+      }
     });
   }
 
@@ -119,29 +180,51 @@ module.exports = function (RED) {
     }
   });
 
-  RED.httpAdmin.get('/atvx/discover', (req, res) => {
-    if (req) {
+  RED.httpAdmin.get('/atvx/discover', async (req, res) => {
+    let backend = req.query.backend;
+    let devices = [];
+    if (backend == 'native') {
       atvx.scan(undefined, 1.5).then(device_list => {
-        let devices = []
-
         device_list.forEach(async (device) => {
           devices.push({ name: device.name, uid: device.uid });
         });
-
-        res.json(devices);
       });
+    } else {
+      const version = await pyatv.version();
+
+      if (!version.pyatv) {
+        res.json({ error: 'Unable to find pyatv. Is it installed?' });
+        return;
+      }
+
+      if (semver.lt(version.pyatv, '0.9.0')) {
+        res.json({ error: 'Found pyatv, but unforunately it\'s too old. Please update pyatv.' });
+        return;
+      }
+
+      try {
+        const device_list = await pyatv.find();
+        device_list.forEach(async (device) => {
+          devices.push({ name: device.options.name, uid: device.options.id });
+        });
+      } catch(error) {
+        res.json({ error: error });
+        return;
+      }
     }
+    res.json(devices);
   });
 
   RED.httpAdmin.get('/atvx/pincode', (req, res) => {
-    if (req.query.pincode) {
-      pinCode = req.query.pincode;
+    let pincode = req.query.pincode;
+    if (pincode) {
+      pinCode = pincode;
     }
     res.status(200).end();
   });
 
   RED.httpAdmin.get('/atvx/pair', (req, res) => {
-    let uniqueIdentifier = req.query.atv.split(':')[1];
+    let uniqueIdentifier = req.query.device.split(';')[1];
 
     if (uniqueIdentifier) {
       atvx.scan(uniqueIdentifier, 1.5).then(devices => {
