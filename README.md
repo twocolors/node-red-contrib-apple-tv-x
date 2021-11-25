@@ -28,13 +28,21 @@ Thanks Lukas Rögner [homebridge-apple-tv-remote](https://github.com/lukasroegne
 ```bash
 $ pip3 install pyatv
 ```
-#### How to install pyatv [(Docker Alpine)](https://hub.docker.com/r/nodered/node-red)
+#### How to install pyatv [(Official Node-RED Docker)](https://hub.docker.com/r/nodered/node-red)
+
+**Exec to Docker use user !!! ROOT !!!**
 
 ```bash
 $ docker exec -it --user root mynodered bash
-$ wget -Oinit.sh https://sh.rustup.rs && sh init.sh -y && rm init.sh && source $HOME/.cargo/env
-$ apk add python3-dev libffi-dev openssl-dev
-$ pip3 install --upgrade git+https://github.com/postlund/pyatv.git
+```
+
+in docker
+
+```bash
+docker$ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs -o rust.sh && sh rust.sh -y && rm rust.sh && source $HOME/.cargo/env
+docker$ apk add python3-dev libffi-dev openssl-dev
+docker$ pip3 install wheel
+docker$ pip3 install --upgrade pyatv
 ```
 
 #### How to get Credentials AirPlay and Companion
@@ -46,6 +54,8 @@ $ atvremote --id 00:11:22:33:44:54 --protocol companion pair
 
 ### Output
 A very simple node that takes the following commands as a string on msg.payload
+
+#### native (no support tvOS 15)
 -   Up
 -   Down
 -   Left
@@ -63,6 +73,29 @@ A very simple node that takes the following commands as a string on msg.payload
 -   Home
 -   VolumeUp
 -   VolumeDown
+
+#### pyatv (python library)
+-   down
+-   home
+-   homeHold
+-   left
+-   menu
+-   next
+-   pause
+-   play
+-   playPause
+-   previous
+-   right
+-   select
+-   skipBackward
+-   skipForward
+-   stop
+-   suspend
+-   topMenu
+-   up
+-   volumeDown
+-   volumeUp
+-   wakeup
 
 ### Input
 Events from Apple TV on msg.payload
