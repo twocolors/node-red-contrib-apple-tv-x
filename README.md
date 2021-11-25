@@ -55,26 +55,6 @@ $ atvremote --id 00:11:22:33:44:54 --protocol companion pair
 ### Output
 A very simple node that takes the following commands as a string on msg.payload
 
-#### native (no support tvOS 15)
--   Up
--   Down
--   Left
--   Right
--   Menu
--   Play
--   Pause
--   Next
--   Previous
--   Suspend
--   Select
--   LongTv
--   Tv
--   Wake
--   Home
--   VolumeUp
--   VolumeDown
-
-#### pyatv (python library)
 -   down
 -   home
 -   homeHold

@@ -9,33 +9,43 @@ module.exports = function (RED) {
     this.backend = this.controller.backend;
 
     let node = this;
-    node.status({});
 
     node.onStatus = function (obj) {
       if (obj) {
         node.status({ fill: `${obj.color}`, shape: "dot", text: `${obj.text}` });
       }
+
+      setTimeout(function () {
+        node.status({});
+      }, 3.5 * 1000);
     }
 
-    if (node.controller) {
-      node.onStatus({ "color": "grey", "text": "initiate ..." });
-      node.controller.on('updateStatus', node.onStatus);
-    }
+    // if (node.controller) {
+    //   node.onStatus({ "color": "grey", "text": "initiate ..." });
+    //   node.controller.on('updateStatus', node.onStatus);
+    // }
 
     this.on('input', function (msg) {
+      let status = null;
       if (node.controller.device) {
         if (node.backend == 'native') {
           let command = msg.payload.replace(/(?:^|\s|["'([{])+\S/g, match => match.toUpperCase());
           let key = appletv_1.AppleTV.Key[command];
           if (typeof (key) !== 'undefined') {
             node.controller.device.sendKeyCommand(key);
+          } else {
+            status = `Unsupported key value key ${key}`;
           }
         } else {
-          let command = msg.payload;
+          let command = msg.payload.replace(/(?:^|\s|["'([{])+\S/g, match => match.toLowerCase());
           node.controller.device.pressKey(command).catch(error => {
-            node.onStatus({ "color": "red", "text": "error" });
-            node.error(error);
+            status = error;
           });
+        }
+
+        if (status) {
+          node.onStatus({ "color": "red", "text": "error" });
+          node.error(status);
         }
       }
     });
