@@ -109,13 +109,14 @@
               return;
             }
 
+            $('#node-config-input-atv').children().remove();
             devices.forEach(function (device) {
               if (!$device || $device.split(';')[1] != device.uid) {
                 $('#node-config-input-atv').append('<option value="' + device.name + ';' + device.uid + '" data-name="' + device.name + '" data-id="' + device.uid + '">' + device.name + '</option>');
               }
             });
 
-            if ($device) { $('#node-config-input-atv').val($device); }
+            if ($device) { $('#node-config-input-atv').append('<option value="'+$device+'">'+$device.split(';')[0]+'</option>').val($device); }
           });
         }
       });
