@@ -1,6 +1,9 @@
 module.exports = function (RED) {
   'use strict';
   const appletv_1 = require("node-appletv-x/dist/lib/appletv");
+  const tools_1 = require("@sebbo2002/node-pyatv/dist/lib/tools");
+  const types_1 = require("@sebbo2002/node-pyatv/dist/lib/types");
+  const exec = require('child_process').exec;
 
   function ATVxOut(n) {
     RED.nodes.createNode(this, n);
@@ -26,7 +29,6 @@ module.exports = function (RED) {
     // }
 
     this.on('input', function (msg) {
-      let status = null;
       if (node.controller.device) {
         if (node.backend == 'native') {
           let command = msg.payload.replace(/(?:^|\s|["'([{])+\S/g, match => match.toUpperCase());
@@ -34,18 +36,31 @@ module.exports = function (RED) {
           if (typeof (key) !== 'undefined') {
             node.controller.device.sendKeyCommand(key);
           } else {
-            status = `Unsupported key value key ${key}`;
+            node.onStatus({ "color": "red", "text": "error" });
+            node.error(`Unsupported key value ${key}`);
           }
         } else {
-          let command = msg.payload.replace(/(?:^|\s|["'([{])+\S/g, match => match.toLowerCase());
-          node.controller.device.pressKey(command).catch(error => {
-            status = error;
-          });
-        }
-
-        if (status) {
-          node.onStatus({ "color": "red", "text": "error" });
-          node.error(status);
+          if (!msg.payload.match(/^(launch_app|play_url)/i)) {
+            let command = msg.payload.replace(/(?:^|\s|["'([{])+\S/g, match => match.toLowerCase());
+            node.controller.device.pressKey(command).catch(error => {
+              node.onStatus({ "color": "red", "text": "error" });
+              node.error(error);
+            });
+          } else {
+            let parameters = tools_1.getParamters({
+              id: node.controller.atv.split(';')[1],
+              airplayCredentials: node.controller.token,
+              companionCredentials: node.controller.companion
+            });
+            parameters.unshift(types_1.NodePyATVExecutableType.atvremote);
+            parameters.push(msg.payload);
+            exec(parameters.join(' '), function (error) {
+              if (error) {
+                node.onStatus({ "color": "red", "text": "error" });
+                node.error(error);
+              }
+            });
+          }
         }
       }
     });

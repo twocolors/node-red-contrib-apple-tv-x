@@ -77,6 +77,11 @@ A very simple node that takes the following commands as a string on msg.payload
 -   volumeUp
 -   wakeup
 
+#### pyatv (python library)
+
+-   launch_app
+-   play_url
+
 ### Input
 Events from Apple TV on msg.payload
 ```
