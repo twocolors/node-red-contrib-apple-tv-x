@@ -23,10 +23,13 @@ Thanks Lukas Rögner [homebridge-apple-tv-remote](https://github.com/lukasroegne
 -   Save and deploy
 
 ### pyatv (python library)
-#### How to install pyatv
+#### How to install pyatv [Official Documentation](https://pyatv.dev/documentation/#installing-pyatv)
+
+#### How to install pyatv on Raspberry Pi [(Raspbian)](https://www.raspberrypi.com/software/)
 
 ```bash
-$ pip3 install pyatv
+$ sudo apt-get install build-essential libssl-dev libffi-dev python3-dev python3-pip python3-cryptography python3-wheel
+$ sudo pip3 install --upgrade pyatv
 ```
 #### How to install pyatv [(Official Node-RED Docker)](https://hub.docker.com/r/nodered/node-red)
 
@@ -40,9 +43,8 @@ in docker
 
 ```bash
 docker$ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs -o rust.sh && sh rust.sh -y && rm rust.sh && source $HOME/.cargo/env
-docker$ apk add python3-dev libffi-dev openssl-dev
-docker$ pip3 install wheel
-docker$ pip3 install --upgrade pyatv
+docker$ apk add openssl-dev libffi-dev python3-dev
+docker$ pip3 install --upgrade wheel pyatv
 ```
 
 #### How to get Credentials AirPlay and Companion
@@ -77,7 +79,7 @@ A very simple node that takes the following commands as a string on msg.payload
 -   volumeUp
 -   wakeup
 
-#### pyatv (python library)
+#### pyatv (python library) (experimental)
 
 -   launch_app
 -   play_url
