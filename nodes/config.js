@@ -106,7 +106,7 @@ module.exports = function (RED) {
       return node.device;
     }
 
-    node.doDisconnectNative = async function () {
+    node.doDisconnectNative = async () => {
       if (node.device) {
         node.device.closeConnection();
         node.device = null;
@@ -148,7 +148,7 @@ module.exports = function (RED) {
       }, 60 * 1000);
     }
 
-    node.doDisconnectPyatv = async function () {
+    node.doDisconnectPyatv = async () => {
       // heartbeat
       if (node.heartbeat) {
         clearInterval(node.heartbeat);

@@ -83,6 +83,8 @@ A very simple node that takes the following commands as a string on msg.payload
 
 -   launch_app
 -   play_url
+-   turn_on
+-   turn_off
 
 ### Input
 Events from Apple TV on msg.payload

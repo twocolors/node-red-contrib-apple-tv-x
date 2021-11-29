@@ -18,7 +18,7 @@ module.exports = function (RED) {
         node.status({ fill: `${obj.color}`, shape: "dot", text: `${obj.text}` });
       }
 
-      setTimeout(function () {
+      setTimeout(() => {
         node.status({});
       }, 3.5 * 1000);
     }
@@ -37,12 +37,13 @@ module.exports = function (RED) {
             node.controller.device.sendKeyCommand(key);
           } else {
             node.onStatus({ "color": "red", "text": "error" });
-            node.error(`Unsupported key value ${key}`);
+            node.error(`Unsupported key value ${key}!`);
           }
         } else {
-          if (!msg.payload.match(/^(launch_app|play_url)/i)) {
-            let command = msg.payload.replace(/(?:^|\s|["'([{])+\S/g, match => match.toLowerCase());
-            node.controller.device.pressKey(command).catch(error => {
+          let command = msg.payload.replace(/(?:^|\s|["'([{])+\S/g, match => match.toLowerCase());
+          let key = types_1.NodePyATVInternalKeys[command];
+          if (typeof (key) !== 'undefined') {
+            node.controller.device.pressKey(key).catch(error => {
               node.onStatus({ "color": "red", "text": "error" });
               node.error(error);
             });
@@ -51,10 +52,8 @@ module.exports = function (RED) {
               id: node.controller.atv.split(';')[1],
               airplayCredentials: node.controller.token,
               companionCredentials: node.controller.companion
-            });
-            parameters.unshift(types_1.NodePyATVExecutableType.atvremote);
-            parameters.push(msg.payload);
-            exec(parameters.join(' '), function (error) {
+            }).join(' ');
+            exec(`${types_1.NodePyATVExecutableType.atvremote} ${parameters} ${msg.payload}`, (error) => {
               if (error) {
                 node.onStatus({ "color": "red", "text": "error" });
                 node.error(error);
