@@ -113,28 +113,31 @@ module.exports = function (RED) {
       }
     }
 
+    let onUpdatePyatv = function (msg) {
+      if (msg.values.key != 'dateTime') {
+        node.updateStatus({ "color": "green", "text": "connected" });
+      }
+      let $key = msg.values.key;
+      let $new = msg.values.new;
+
+      let $msg = new Object;
+      $msg[$key] = $new;
+
+      node.emit('updateMessage', $msg);
+    }
+
+    let onErrorPyatv = function (msg) {
+      node.updateStatus({ "color": "red", "text": "error" });
+      node.error(msg);
+    }
+
     node.doConnectPyatv = async function (id, airplay, companion) {
       if (!node.device) {
         node.device = pyatv.device({id: id, airplayCredentials: airplay, companionCredentials: companion});
       }
 
-      node.device.on('update', function (msg) {
-        if (msg.values.key != 'dateTime') {
-          node.updateStatus({ "color": "green", "text": "connected" });
-        }
-        let $key = msg.values.key;
-        let $new = msg.values.new;
-
-        let $msg = new Object;
-        $msg[$key] = $new;
-
-        node.emit('updateMessage', $msg);
-      });
-
-      node.device.on('error', function (msg) {
-        node.updateStatus({ "color": "red", "text": "error" });
-        node.error(msg);
-      });
+      node.device.on('update', onUpdatePyatv);
+      node.device.on('error', onErrorPyatv);
 
       // heartbeat
       node.heartbeat = setInterval(async () => {
@@ -153,7 +156,8 @@ module.exports = function (RED) {
       }
 
       if (node.device) {
-        node.device.off('update', () => {});
+        node.device.off('update', onUpdatePyatv);
+        node.device.off('error', onErrorPyatv);
         node.device = null;
       }
     }
