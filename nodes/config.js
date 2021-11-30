@@ -113,17 +113,15 @@ module.exports = function (RED) {
       }
     }
 
-    let onUpdatePyatv = function (msg) {
-      if (msg.values.key != 'dateTime') {
+    let onUpdatePyatv = function (event) {
+      if (event.key != 'dateTime') {
         node.updateStatus({ "color": "green", "text": "connected" });
       }
-      let $key = msg.values.key;
-      let $new = msg.values.new;
 
-      let $msg = new Object;
-      $msg[$key] = $new;
+      let obj = {};
+      obj[event.key] = event.value;
 
-      node.emit('updateMessage', $msg);
+      node.emit('updateMessage', obj);
     }
 
     let onErrorPyatv = function (msg) {

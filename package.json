@@ -3,7 +3,7 @@
   "license": "GPL",
   "name": "node-red-contrib-apple-tv-x",
   "description": "Nodes for controlling Apple TVs in Node-RED (native or pyatv)",
-  "version": "0.4.7",
+  "version": "0.4.8",
   "node-red": {
     "nodes": {
       "atvx-config": "nodes/config.js",
@@ -14,7 +14,7 @@
   "dependencies": {
     "node-appletv-x": "ikhilko/node-appletv-x#master",
     "lodash": "^4.17.21",
-    "@sebbo2002/node-pyatv": "^4.1.0",
+    "@sebbo2002/node-pyatv": "^4.2.0",
     "semver": "^7.3.5"
   },
   "bugs": {
