@@ -43,7 +43,7 @@ module.exports = function (RED) {
           let command = msg.payload.replace(/(?:^|\s|["'([{])+\S/g, match => match.toLowerCase());
           let key = types_1.NodePyATVInternalKeys[command];
           if (typeof (key) !== 'undefined') {
-            node.controller.device.pressKey(key).catch(error => {
+            node.controller.device.pressKey(command).catch(error => {
               node.onStatus({ "color": "red", "text": "error" });
               node.error(error);
             });
