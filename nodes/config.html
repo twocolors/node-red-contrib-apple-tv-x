@@ -42,10 +42,18 @@
     <input type="text" id="node-config-input-token" placeholder="Token">
   </div>
 
+  <div id="pyatv">
   <div class="form-row" id="pyatv-companion">
     <label for="node-config-input-companion"><i class="fa fa-key"></i> Companion</label>
     <input type="text" id="node-config-input-companion" placeholder="Token">
   </div>
+
+  <div class="form-row">
+    <label for="node-config-input-debug"><i class="fa fa-share-square"></i> Debug</label>
+    <input type="checkbox" id="node-config-input-debug" style="display: inline-block; width: auto; vertical-align: top;" autocomplete="off">
+  </div>
+  </div>
+
 </script>
 
 <script type="text/html" data-help-name="atvx-config">
@@ -54,8 +62,12 @@
   <dl class="message-properties">
     <dt class="optional">Name<span class="property-type">string</span></dt>
     <dd>Choose any name to identify your node</dd>
-    <dt class="required">Token<span class="property-type">string</span></dt>
+    <dt class="required">Token (native)<span class="property-type">string</span></dt>
     <dd>Apple TV pairing Token</dd>
+    <dt class="required">AirPlay (pyatv)<span class="property-type">string</span></dt>
+    <dd>Apple TV pairing AirPlay credentials</dd>
+    <dt class="required">Companion (pyatv)<span class="property-type">string</span></dt>
+    <dd>Apple TV pairing Companion credentials</dd>
   </dl>
 </script>
 
@@ -66,6 +78,7 @@
       name: { value: '' },
       backend: { value: 'native' },
       companion: { value: '' },
+      debug: { value: false },
     },
     credentials: {
       atv: { type: 'text', required: true },
@@ -150,11 +163,11 @@
         if ($backend == 'native') {
           $('#native-pairing').show();
           $('#pyatv-airplay').text('Token');
-          $('#pyatv-companion').hide();
+          $('#pyatv').hide();
         } else {
           $('#native-pairing').hide();
           $('#pyatv-airplay').text('AirPlay');
-          $('#pyatv-companion').show();
+          $('#pyatv').show();
         }
       }
     }

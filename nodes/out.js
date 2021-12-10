@@ -10,6 +10,7 @@ module.exports = function (RED) {
 
     this.controller = RED.nodes.getNode(n.atvx);
     this.backend = this.controller.backend;
+    this.config = n;
 
     let node = this;
 
@@ -44,8 +45,7 @@ module.exports = function (RED) {
           let key = types_1.NodePyATVInternalKeys[command];
           if (typeof (key) !== 'undefined') {
             node.controller.device.pressKey(command).catch(error => {
-              node.onStatus({ "color": "red", "text": "error" });
-              node.error(error);
+              _error(error);
             });
           } else {
             let parameters = tools_1.getParamters({
@@ -54,15 +54,22 @@ module.exports = function (RED) {
               companionCredentials: node.controller.companion
             }).join(' ');
             exec(`${types_1.NodePyATVExecutableType.atvremote} ${parameters} ${msg.payload}`, (error) => {
-              if (error) {
-                node.onStatus({ "color": "red", "text": "error" });
-                node.error(error);
-              }
+              _error(error);
             });
           }
         }
       }
     });
+
+    function _error(error) {
+      if (error) {
+        if (node.config.skip_deprecated && error.toString().match(/pyatv.*DeprecationWarning/i)) {
+          return;
+        }
+        node.onStatus({ "color": "red", "text": "error" });
+        node.error(error);
+      }
+    }
 
   }
   RED.nodes.registerType("atvx-out", ATVxOut);

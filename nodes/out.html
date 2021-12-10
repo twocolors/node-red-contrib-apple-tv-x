@@ -7,7 +7,8 @@
     align: 'right',
     defaults: {
       name: { value: '' },
-      atvx: { type: 'atvx-config', required: true }
+      atvx: { type: 'atvx-config', required: true },
+      skip_deprecated: { value: false }
     },
     label: function () {
       return this.name || 'out';
@@ -25,6 +26,11 @@
   <div class="form-row">
     <label for="node-input-atvx"><i class="fa fa-tv"></i> Apple TV</label>
     <input type="text" id="node-input-atvx">
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-skip_deprecated"><i class="fa fa-share-square"></i> Skip Deprecated Error (pyatv)</label>
+    <input type="checkbox" id="node-input-skip_deprecated" style="display: inline-block; width: auto; vertical-align: top;" autocomplete="off">
   </div>
 </script>
 

@@ -23,6 +23,8 @@ Thanks Lukas Rögner [homebridge-apple-tv-remote](https://github.com/lukasroegne
 -   Save and deploy
 
 ### pyatv (python library)
+Thanks Pierre Ståhl [pyatv](https://github.com/postlund/pyatv)
+
 #### How to install pyatv [Official Documentation](https://pyatv.dev/documentation/#installing-pyatv)
 
 #### How to install pyatv on Raspberry Pi [(Raspbian)](https://www.raspberrypi.com/software/)

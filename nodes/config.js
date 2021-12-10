@@ -16,6 +16,7 @@ module.exports = function (RED) {
     this.atv       = this.credentials.atv;
     this.token     = this.credentials.token;
     this.companion = n.companion;
+    this.debug     = n.debug;
 
     let node = this;
 
@@ -23,8 +24,8 @@ module.exports = function (RED) {
       node.emit('updateStatus', obj);
     }
 
-    node.doConnectNative = async function (token) {
-      let credentials = atvx.parseCredentials(token);
+    node.doConnectNative = async () => {
+      let credentials = atvx.parseCredentials(node.token);
       let uniqueIdentifier = credentials.uniqueIdentifier;
 
       node.device = await atvx.scan(uniqueIdentifier, 1.5).then(devices => {
@@ -129,9 +130,14 @@ module.exports = function (RED) {
       node.error(msg);
     }
 
-    node.doConnectPyatv = async function (id, airplay, companion) {
+    node.doConnectPyatv = async () => {
       if (!node.device) {
-        node.device = pyatv.device({id: id, airplayCredentials: airplay, companionCredentials: companion});
+        node.device = pyatv.device({
+          id: node.atv.split(';')[1],
+          airplayCredentials: node.token,
+          companionCredentials: node.companion,
+          debug: node.debug
+        });
       }
 
       node.device.on('update', onUpdatePyatv);
@@ -163,19 +169,18 @@ module.exports = function (RED) {
     // main
     if (node.atv && node.token) {
       if (node.backend == 'native') {
-        setTimeout(node.doConnectNative, 1.5 * 1000, node.token);
+        setTimeout(node.doConnectNative, 1.5 * 1000);
       } else {
-        let id = node.atv.split(';')[1];
-        setTimeout(node.doConnectPyatv, 1.5 * 1000, id, node.token, node.companion);
+        setTimeout(node.doConnectPyatv, 1.5 * 1000);
       }
     }
 
-    node.on('close', () => {
+    node.on('close', async () => {
       pinCode = null;
       if (node.backend == 'native') {
-        node.doDisconnectNative;
+        await node.doDisconnectNative();
       } else {
-        node.doDisconnectPyatv;
+        await node.doDisconnectPyatv();
       }
     });
   }
