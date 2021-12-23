@@ -4,6 +4,9 @@ module.exports = function (RED) {
   const pyatv = require('@sebbo2002/node-pyatv').default;
   const semver = require('semver');
 
+  const re_ipv4 = /^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$/gi;
+  const re_mac  = /^[0-9a-f]{1,2}([\:])(?:[0-9a-f]{1,2}\1){4}[0-9a-f]{1,2}$/gi;
+
   let pinCode = null;
 
   function ATVxConfig(n) {
@@ -132,12 +135,22 @@ module.exports = function (RED) {
 
     node.doConnectPyatv = async () => {
       if (!node.device) {
-        node.device = pyatv.device({
-          id: node.atv.split(';')[1],
+        let connect = {
           airplayCredentials: node.token,
           companionCredentials: node.companion,
           debug: node.debug
-        });
+        };
+
+        let atv = node.atv.toString();
+        if (atv.match(/;/i)) {
+          connect['id'] = node.atv.split(';')[1];
+        } else if (atv.match(re_ipv4)) {
+          connect['host'] = node.atv;
+        } else if (atv.match(re_mac)) {
+          connect['id'] = node.atv;
+        }
+
+        node.device = pyatv.device(connect);
       }
 
       node.device.on('update', onUpdatePyatv);

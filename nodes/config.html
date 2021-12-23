@@ -14,10 +14,8 @@
 
   <div class="form-row">
     <label for="node-config-input-atv"><i class="fa fa-tv"></i> Apple TV</label>
-    <div style="display: inline-block; position: relative; width: 70%;">
-      <input type="text" id="node-config-input-atv" placeholder="Apple TV">
-      <a id="node-config-input-scan" class="red-ui-button" style="margin-left: 10px;"><i class="fa fa-search"></i></a>
-    </div>
+    <input type="text" id="node-config-input-atv" placeholder="Apple TV (Id/Host)" style="width: 60%;">
+    <a id="node-config-input-scan" class="red-ui-button" style="margin-left: 10px;"><i class="fa fa-search"></i></a>
   </div>
 
   <div class="form-row" id="native-pairing">
@@ -77,7 +75,7 @@
     defaults: {
       name: { value: '' },
       backend: { value: 'native' },
-      companion: { value: '' },
+      companion: { value: '', required: true },
       debug: { value: false },
     },
     credentials: {
@@ -92,8 +90,8 @@
 
       setTimeout(function () {
         let $device = $('#node-config-input-atv').val();
-        $('#node-config-input-atv').replaceWith('<select id="node-config-input-atv" style="width: 85%;"></select>');
-        if ($device) {
+        if ($device && $device.match(/;/i)) {
+          $('#node-config-input-atv').replaceWith('<select id="node-config-input-atv" style="width: 60%;"></select>');
           $('#node-config-input-atv').append('<option value="'+$device+'">'+$device.split(';')[0]+'</option>');
         }
 
@@ -109,9 +107,12 @@
         let $device  = $('#node-config-input-atv').val();
 
         if ($backend) {
+          $('#node-config-input-atv').prop('disabled', true);
           $.getJSON('atvx/discover', {
             backend: $backend,
           }).done(function (devices) {
+            $('#node-config-input-atv').prop('disabled', false);
+
             if (devices.length === 0) {
               RED.notify('No devices retrieved, check your Apple TVs connection settings', 'error');
               return;
@@ -122,6 +123,7 @@
               return;
             }
 
+            $('#node-config-input-atv').replaceWith('<select id="node-config-input-atv" style="width: 60%;"></select>');
             $('#node-config-input-atv').children().remove();
             devices.forEach(function (device) {
               if (!$device || $device.split(';')[1] != device.uid) {
