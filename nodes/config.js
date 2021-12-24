@@ -143,11 +143,11 @@ module.exports = function (RED) {
 
         let atv = node.atv.toString();
         if (atv.match(/;/i)) {
-          connect['id'] = node.atv.split(';')[1];
+          connect['id'] = atv.split(';')[1];
         } else if (atv.match(re_ipv4)) {
-          connect['host'] = node.atv;
+          connect['host'] = atv;
         } else if (atv.match(re_mac)) {
-          connect['id'] = node.atv;
+          connect['id'] = atv;
         }
 
         node.device = pyatv.device(connect);
