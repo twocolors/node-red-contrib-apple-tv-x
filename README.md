@@ -19,11 +19,11 @@
 
 Nodes for controlling Apple TVs in Node-RED (wrapper pyatv).
 
+Thanks Pierre Ståhl for project [pyatv](https://github.com/postlund/pyatv)
+
 Tested models are:
 * Apple TV HD (Apple TV 4)
 * Apple TV 4K
-
-Thanks Pierre Ståhl for project [pyatv](https://github.com/postlund/pyatv)
 
 ## Backend
 
