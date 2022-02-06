@@ -1,19 +1,19 @@
 <script type="text/javascript">
-  RED.nodes.registerType('atvx-out', {
-    category: 'Apple TV',
-    color: '#FFAAAA',
+  RED.nodes.registerType("atvx-out", {
+    category: "Apple TV",
+    paletteLabel: "out",
+    color: "#FFAAAA",
     inputs: 1,
     icon: "icon.png",
-    align: 'right',
+    align: "right",
     defaults: {
-      name: { value: '' },
-      atvx: { type: 'atvx-config', required: true },
+      name: { value: "" },
+      atvx: { type: "atvx-config", required: true },
       skip_deprecated: { value: false }
     },
     label: function () {
-      return this.name || 'out';
+      return this.name || "out";
     },
-    paletteLabel: "out"
   });
 </script>
 
@@ -29,8 +29,8 @@
   </div>
 
   <div class="form-row">
-    <label for="node-input-skip_deprecated" style="min-width: 150px;"><i class="fa fa-share-square"></i> Skip Deprecated Error (pyatv)</label>
-    <input type="checkbox" id="node-input-skip_deprecated" style="display: inline-block; width: auto; vertical-align: top;" autocomplete="off">
+    <label for="node-input-skip_deprecated"><i class="fa fa-share-square"></i> Skip</label>
+    <input type="checkbox" id="node-input-skip_deprecated" style="display: inline-block; width: auto; vertical-align: top; margin-right: 10px;">Deprecated Error (pyatv-cli)
   </div>
 </script>
 
@@ -58,5 +58,7 @@
   <li>volumeDown</li>
   <li>volumeUp</li>
   <li>wakeup</li>
+  <li>turnOff</li>
+  <li>turnOn</li>
   </ul>
 </script>

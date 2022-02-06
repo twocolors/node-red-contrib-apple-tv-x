@@ -1,297 +1,158 @@
 module.exports = function (RED) {
-  'use strict';
-  const atvx  = require('node-appletv-x');
-  const pyatv = require('@sebbo2002/node-pyatv').default;
-  const semver = require('semver');
+  "use strict";
 
-  const re_ipv4 = /^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$/gi;
-  const re_mac  = /^[0-9a-f]{1,2}([\:])(?:[0-9a-f]{1,2}\1){4}[0-9a-f]{1,2}$/gi;
-
-  let pinCode = null;
+  const pyatv = require("@sebbo2002/node-pyatv").default;
+  const semver = require("semver");
+  const net = require("net");
 
   function ATVxConfig(n) {
     RED.nodes.createNode(this, n);
-
-    this.device    = null;
-    this.reconnect = null;
-    this.heartbeat = null
-    this.backend   = n.backend;
-    this.atv       = this.credentials.atv;
-    this.token     = this.credentials.token;
-    this.companion = n.companion;
-    this.debug     = n.debug;
+    this.backend = n.backend;
+    this.path = n.path;
+    this.url = n.url;
+    this.identifier = this.credentials.identifier;
+    this.companion = this.credentials.companion;
+    this.airplay = this.credentials.airplay;
+    this.debug = n.debug;
 
     let node = this;
 
+    node.connect = null;
+    node.heartbeat = null;
+
     node.updateStatus = function (obj) {
-      node.emit('updateStatus', obj);
-    }
+      node.emit("updateStatus", obj);
+    };
 
-    node.doConnectNative = async () => {
-      let credentials = atvx.parseCredentials(node.token);
-      let uniqueIdentifier = credentials.uniqueIdentifier;
+    let onError = function (msg) {
+      node.updateStatus({ color: "red", text: "error" });
+      node.error(msg);
+    };
 
-      node.device = await atvx.scan(uniqueIdentifier, 1.5).then(devices => {
-        node.updateStatus({ "color": "yellow", "text": "connecting ..." });
-
-        let device = devices[0];
-
-        // emit message
-        device.on('message', function (msg) {
-          node.emit('updateMessage', msg);
-        });
-
-        // emit connect
-        device.on('connect', () => {
-          node.updateStatus({ "color": "green", "text": "connected" });
-
-          // reconnect
-          clearTimeout(node.reconnect);
-        });
-
-        // emit close
-        device.on('close', () => {
-          node.updateStatus({ "color": "red", "text": "disconnected" });
-
-          // heartbeat
-          if (node.heartbeat) {
-            clearInterval(node.heartbeat);
-            node.heartbeat = null;
-          }
-
-          // connect
-          if (node.device) {
-            node.device.closeConnection();
-            node.device = null;
-          }
-
-          // reconnect
-          // if (!node.reconnect) {
-          //   node.reconnect = setTimeout(node.doConnectNative, 15 * 1000, node.token);
-          // }
-        });
-
-        device.on('error', () => {
-          // reconnect
-          if (!node.reconnect) {
-            node.reconnect = setTimeout(node.doConnectNative, 15 * 1000, node.token);
-          }
-        });
-
-        return device.openConnection(credentials);
-      }).catch(error => {
-        // console.log(error);
-        node.error('Bad token (re-Pairing Apple TV) or Disconnected');
-        // reconnect
-        if (!node.reconnect) {
-          node.reconnect = setTimeout(node.doConnectNative, 15 * 1000, node.token);
-        }
-      });
-
-      if (node.device) {
-        try {
-          await node.device.requestPlaybackQueue({
-            location: 0,
-            length: 1,
-            includeMetadata: true,
-            includeLyrics: true,
-            includeLanguageOptions: true
-          });
-        } catch (_) { }
-
-        // heartbeat
-        node.heartbeat = setInterval(async () => {
-          try {
-            await node.device.sendIntroduction();
-          } catch (_) { }
-        }, 60 * 1000);
-      }
-
-      return node.device;
-    }
-
-    node.doDisconnectNative = async () => {
-      if (node.device) {
-        node.device.closeConnection();
-        node.device = null;
-      }
-    }
-
-    let onUpdatePyatv = function (event) {
-      if (event.key != 'dateTime') {
-        node.updateStatus({ "color": "green", "text": "connected" });
+    let onUpdateCli = function (event) {
+      if (event.key != "dateTime") {
+        node.updateStatus({ color: "green", text: "connected" });
       }
 
       let obj = {};
       obj[event.key] = event.value;
 
-      node.emit('updateMessage', obj);
-    }
+      node.emit("updateMessage", obj);
+    };
 
-    let onErrorPyatv = function (msg) {
-      node.updateStatus({ "color": "red", "text": "error" });
-      node.error(msg);
-    }
-
-    node.doConnectPyatv = async () => {
-      if (!node.device) {
-        let connect = {
-          airplayCredentials: node.token,
+    node.doConnectCli = async () => {
+      if (!node.connect) {
+        let options = {
           companionCredentials: node.companion,
-          debug: node.debug
+          airplayCredentials: node.airplay,
+          debug: node.debug,
         };
-
-        let atv = node.atv.toString();
-        if (atv.match(/;/i)) {
-          connect['id'] = atv.split(';')[1];
-        } else if (atv.match(re_ipv4)) {
-          connect['host'] = atv;
-        } else if (atv.match(re_mac)) {
-          connect['id'] = atv;
+        if (node.path) {
+          options.atvremotePath = `${node.path}/atvremote`;
+          options.atvscriptPath = `${node.path}/atvscript`;
         }
 
-        node.device = pyatv.device(connect);
+        if (net.isIP(node.identifier)) {
+          options.host = node.identifier;
+        } else {
+          options.id = node.identifier;
+        }
+
+        node.connect = pyatv.device(options);
       }
 
-      node.device.on('update', onUpdatePyatv);
-      node.device.on('error', onErrorPyatv);
+      node.connect.on("error", onError);
+      node.connect.on("update", onUpdateCli);
 
       // heartbeat
       node.heartbeat = setInterval(async () => {
         try {
-          let msg = await node.device.getState();
-          node.emit('updateMessage', msg);
-        } catch (_) { }
+          let msg = await node.connect.getState();
+          node.emit("updateMessage", msg);
+        } catch (_) {}
       }, 60 * 1000);
-    }
+    };
 
-    node.doDisconnectPyatv = async () => {
+    node.doDisconnectCli = async () => {
       // heartbeat
       if (node.heartbeat) {
         clearInterval(node.heartbeat);
         node.heartbeat = null;
       }
 
-      if (node.device) {
-        node.device.off('update', onUpdatePyatv);
-        node.device.off('error', onErrorPyatv);
-        node.device = null;
+      if (node.connect) {
+        node.connect.off("error", onError);
+        node.connect.off("update", onUpdateCli);
+        node.connect = null;
       }
-    }
+    };
 
     // main
-    if (node.atv && node.token) {
-      if (node.backend == 'native') {
-        setTimeout(node.doConnectNative, 1.5 * 1000);
-      } else {
-        setTimeout(node.doConnectPyatv, 1.5 * 1000);
+    if (node.identifier) {
+      if (node.backend == "pyatv-cli") {
+        setTimeout(node.doConnectCli, 1.5 * 1000);
       }
     }
 
-    node.on('close', async () => {
-      pinCode = null;
-      if (node.backend == 'native') {
-        await node.doDisconnectNative();
-      } else {
-        await node.doDisconnectPyatv();
+    // close
+    node.on("close", async () => {
+      if (node.backend == "pyatv-cli") {
+        await node.doDisconnectCli();
       }
     });
   }
 
   RED.nodes.registerType("atvx-config", ATVxConfig, {
     credentials: {
-      atv: { type: 'text' },
-      token: { type: 'text' }
-    }
+      identifier: { type: "text" },
+      companion: { type: "text" },
+      airplay: { type: "text" },
+    },
   });
 
-  RED.httpAdmin.get('/atvx/discover', async (req, res) => {
+  RED.httpAdmin.get("/atvx/scan", async (req, res) => {
     let backend = req.query.backend;
+    let path = req.query.path;
+    let url = req.query.url;
+    let debug = req.query.debug == "true" ? true : false;
     let devices = [];
-    if (backend == 'native') {
-      atvx.scan(undefined, 1.5).then(device_list => {
-        device_list.forEach(async (device) => {
-          devices.push({ name: device.name, uid: device.uid });
-        });
-      });
-    } else {
-      const version = await pyatv.version();
+
+    if (backend == "pyatv-cli") {
+      let options = {
+        debug: debug,
+      };
+      if (path) {
+        options.atvremotePath = `${path}/atvremote`;
+        options.atvscriptPath = `${path}/atvscript`;
+      }
+      const version = await pyatv.version(options);
 
       if (!version.pyatv) {
-        res.json({ error: 'Unable to find pyatv. Is it installed?' });
-        return;
+        return res.json({ error: `Unable to find pyatv. Is it installed?` });
       }
 
-      if (semver.lt(version.pyatv, '0.9.0')) {
-        res.json({ error: 'Found pyatv, but unforunately it\'s too old. Please update pyatv.' });
-        return;
+      if (semver.lt(version.pyatv, "0.9.0")) {
+        return res.json({
+          error: `Found pyatv, but unforunately it's too old (${version.pyatv}). Please update pyatv.`,
+        });
       }
 
       try {
-        const device_list = await pyatv.find();
-        device_list.forEach(async (device) => {
-          devices.push({ name: device.options.name, uid: device.options.id });
-        });
-      } catch(error) {
-        res.json({ error: error });
-        return;
-      }
-    }
-    res.json(devices);
-  });
-
-  RED.httpAdmin.get('/atvx/pincode', (req, res) => {
-    let pincode = req.query.pincode;
-    if (pincode) {
-      pinCode = pincode;
-    }
-    res.status(200).end();
-  });
-
-  RED.httpAdmin.get('/atvx/pair', (req, res) => {
-    let uniqueIdentifier = req.query.device.split(';')[1];
-
-    if (uniqueIdentifier) {
-      atvx.scan(uniqueIdentifier, 1.5).then(devices => {
-
-        return devices[0].openConnection()
-          .then(device => {
-            return device.pair();
-          })
-          .then(callback => {
-            return new Promise((resolve, reject) => {
-              let poller = setInterval(() => {
-                if (pinCode != null && pinCode.length == 4) {
-                  clearInterval(poller);
-                  resolve([callback, pinCode])
-                }
-              }, 1.5 * 1000);
-            });
-          })
-          .then(([callback, pinCode]) => {
-            return callback(pinCode.toString());
+        let list = await pyatv.find(options);
+        list.forEach(async (device) => {
+          devices.push({
+            name: device.options.name,
+            identifier: device.options.id,
+            host: device.options.host,
           });
-
-      }).then(device => {
-        // you're paired!
-        let credentials = device.credentials;
-        if (credentials) {
-          res.json({ token: credentials.toString() });
-        }
-        return device;
-      }).then(device => {
-        pinCode = null;
-        device.closeConnection();
-      }).catch(error => {
-        pinCode = null;
-        let msg = 'Wrong PIN Code please try again "Initiate Connection"';
-        if (typeof (error.message) !== 'undefined' && error.message.toString().match(/(attempt|rebooting)/i)) {
-          msg = error.message;
-        }
-        res.json({ error: msg });
-      });
+        });
+      } catch (error) {
+        return res.json({ error: error });
+      }
     } else {
-      res.json({});
+      return res.json({ error: `Unknown backend` });
     }
+
+    return res.json(devices);
   });
-}
+};

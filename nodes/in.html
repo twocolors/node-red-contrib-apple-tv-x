@@ -1,18 +1,18 @@
 <script type="text/javascript">
-  RED.nodes.registerType('atvx-in', {
-    category: 'Apple TV',
-    color: '#FFAAAA',
+  RED.nodes.registerType("atvx-in", {
+    category: "Apple TV",
+    paletteLabel: "in",
+    color: "#FFAAAA",
     outputs: 1,
     icon: "icon.png",
-    align: 'left',
+    align: "left",
     defaults: {
-      name: { value: '' },
-      atvx: { type: 'atvx-config', required: true }
+      name: { value: "" },
+      atvx: { type: "atvx-config", required: true }
     },
     label: function () {
-      return this.name || 'in';
+      return this.name || "in";
     },
-    paletteLabel: "in"
   });
 </script>
 

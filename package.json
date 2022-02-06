@@ -2,20 +2,19 @@
   "author": "D",
   "license": "GPL",
   "name": "node-red-contrib-apple-tv-x",
-  "description": "Nodes for controlling Apple TVs in Node-RED (native or pyatv)",
+  "description": "Nodes for controlling Apple TVs in Node-RED (wrapper pyatv)",
   "version": "0.5.2",
   "node-red": {
+    "version": ">=1.0.0",
     "nodes": {
       "atvx-config": "nodes/config.js",
-      "atvx-out": "nodes/out.js",
-      "atvx-in": "nodes/in.js"
+      "atvx-in": "nodes/in.js",
+      "atvx-out": "nodes/out.js"
     }
   },
   "dependencies": {
-    "node-appletv-x": "ikhilko/node-appletv-x#master",
-    "lodash": "^4.17.21",
-    "@sebbo2002/node-pyatv": "^4.2.0",
-    "semver": "^7.3.5"
+    "@sebbo2002/node-pyatv": "^4.3.0",
+    "semver": "7.3.5"
   },
   "bugs": {
     "url": "https://github.com/twocolors/node-red-contrib-apple-tv-x/issues"
@@ -35,5 +34,8 @@
     "media remote",
     "pyatv",
     "atv"
-  ]
+  ],
+  "engines": {
+    "node": ">=12"
+  }
 }

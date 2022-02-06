@@ -1,0 +1,186 @@
+[
+  {
+      "id": "f4a338b1e4fa0d0a",
+      "type": "tab",
+      "label": "pyatv",
+      "disabled": false,
+      "info": "",
+      "env": []
+  },
+  {
+      "id": "9c45827d5fb9da62",
+      "type": "atvx-in",
+      "z": "f4a338b1e4fa0d0a",
+      "name": "",
+      "atvx": "3a329dda06f890de",
+      "x": 270,
+      "y": 200,
+      "wires": [
+          [
+              "7c44a63d1bd4693b"
+          ]
+      ]
+  },
+  {
+      "id": "7c44a63d1bd4693b",
+      "type": "debug",
+      "z": "f4a338b1e4fa0d0a",
+      "name": "",
+      "active": true,
+      "tosidebar": true,
+      "console": false,
+      "tostatus": false,
+      "complete": "payload",
+      "targetType": "msg",
+      "statusVal": "",
+      "statusType": "auto",
+      "x": 430,
+      "y": 200,
+      "wires": []
+  },
+  {
+      "id": "1e5877deefd3c9cc",
+      "type": "atvx-out",
+      "z": "f4a338b1e4fa0d0a",
+      "name": "",
+      "atvx": "3a329dda06f890de",
+      "skip_deprecated": false,
+      "x": 410,
+      "y": 280,
+      "wires": []
+  },
+  {
+      "id": "020431692055ac92",
+      "type": "inject",
+      "z": "f4a338b1e4fa0d0a",
+      "name": "launch_app",
+      "props": [
+          {
+              "p": "payload"
+          }
+      ],
+      "repeat": "",
+      "crontab": "",
+      "once": false,
+      "onceDelay": 0.1,
+      "topic": "",
+      "payload": "launch_app=com.google.ios.youtube",
+      "payloadType": "str",
+      "x": 250,
+      "y": 280,
+      "wires": [
+          [
+              "1e5877deefd3c9cc"
+          ]
+      ]
+  },
+  {
+      "id": "0cd9c1f8e649368a",
+      "type": "inject",
+      "z": "f4a338b1e4fa0d0a",
+      "name": "",
+      "props": [
+          {
+              "p": "payload"
+          }
+      ],
+      "repeat": "",
+      "crontab": "",
+      "once": false,
+      "onceDelay": 0.1,
+      "topic": "",
+      "payload": "turnOff",
+      "payloadType": "str",
+      "x": 270,
+      "y": 440,
+      "wires": [
+          [
+              "1e5877deefd3c9cc"
+          ]
+      ]
+  },
+  {
+      "id": "690adec986d3c7ec",
+      "type": "inject",
+      "z": "f4a338b1e4fa0d0a",
+      "name": "",
+      "props": [
+          {
+              "p": "payload"
+          }
+      ],
+      "repeat": "",
+      "crontab": "",
+      "once": false,
+      "onceDelay": 0.1,
+      "topic": "",
+      "payload": "turnOn",
+      "payloadType": "str",
+      "x": 270,
+      "y": 360,
+      "wires": [
+          [
+              "1e5877deefd3c9cc"
+          ]
+      ]
+  },
+  {
+      "id": "7fbd02f4264d114a",
+      "type": "inject",
+      "z": "f4a338b1e4fa0d0a",
+      "name": "",
+      "props": [
+          {
+              "p": "payload"
+          }
+      ],
+      "repeat": "",
+      "crontab": "",
+      "once": false,
+      "onceDelay": 0.1,
+      "topic": "",
+      "payload": "play",
+      "payloadType": "str",
+      "x": 270,
+      "y": 520,
+      "wires": [
+          [
+              "1e5877deefd3c9cc"
+          ]
+      ]
+  },
+  {
+      "id": "e12c39ecc62bc1c1",
+      "type": "inject",
+      "z": "f4a338b1e4fa0d0a",
+      "name": "",
+      "props": [
+          {
+              "p": "payload"
+          }
+      ],
+      "repeat": "",
+      "crontab": "",
+      "once": false,
+      "onceDelay": 0.1,
+      "topic": "",
+      "payload": "pause",
+      "payloadType": "str",
+      "x": 270,
+      "y": 600,
+      "wires": [
+          [
+              "1e5877deefd3c9cc"
+          ]
+      ]
+  },
+  {
+      "id": "3a329dda06f890de",
+      "type": "atvx-config",
+      "name": "Living Room (use VENV)",
+      "backend": "pyatv-cli",
+      "debug": false,
+      "path": "/Users/D/node-red/.venv/bin",
+      "url": ""
+  }
+]

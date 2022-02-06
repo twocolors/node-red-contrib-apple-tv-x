@@ -1,29 +1,33 @@
 
 # node-red-contrib-apple-tv-x
 
+#### From version 1.0.0 remove support native control Apple TVs [(more)](https://github.com/lukasroegner/homebridge-apple-tv-remote/issues/105)
+
+
+[![platform](https://img.shields.io/badge/platform-Node--RED-red?logo=nodered)](https://nodered.org)
+[![Min Node Version](https://img.shields.io/node/v/node-red-contrib-apple-tv-x.svg)](https://nodejs.org/en/)
+[![GitHub version](https://img.shields.io/github/package-json/v/twocolors/node-red-contrib-apple-tv-x?logo=npm)](https://www.npmjs.com/package/node-red-contrib-apple-tv-x)
+[![Package Quality](https://packagequality.com/shield/node-red-contrib-apple-tv-x.svg)](https://packagequality.com/#?package=node-red-contrib-apple-tv-x)
+
+[![issues](https://img.shields.io/github/issues/twocolors/node-red-contrib-apple-tv-x?logo=github)](https://github.com/twocolors/node-red-contrib-apple-tv-x/issues)
+![GitHub last commit](https://img.shields.io/github/last-commit/twocolors/node-red-contrib-apple-tv-x/master)
+![NPM Total Downloads](https://img.shields.io/npm/dt/node-red-contrib-apple-tv-x.svg)
+![NPM Downloads per month](https://img.shields.io/npm/dm/node-red-contrib-apple-tv-x)
+![Repo size](https://img.shields.io/github/repo-size/twocolors/node-red-contrib-apple-tv-x)
+
 ## About
 
-Nodes for controlling Apple TVs in Node-RED.
+Nodes for controlling Apple TVs in Node-RED (wrapper pyatv).
 
 Tested models are:
 * Apple TV HD (Apple TV 4)
 * Apple TV 4K
 
+Thanks Pierre Ståhl for project [pyatv](https://github.com/postlund/pyatv)
+
 ## Backend
 
-### native (no support tvOS 15)
-Thanks Lukas Rögner [homebridge-apple-tv-remote](https://github.com/lukasroegner/homebridge-apple-tv-remote) and stickpin [node-appletv-x](https://github.com/stickpin/node-appletv-x)
-
-#### Pairing
--   Drag ATV input onto the canvas and select 'Add new atvx-config'
--   Once the config editor loads, wait until a list of Apple TV devices on your network appear in the dropdown
--   Select your device from the dropdown and click "Initiate Connection"
--   Once the pairing code appears on your Apple TV, enter it in the Pin field and press the submit button to the right
--   On a successful pairing, a string will appear in the Apple TV Token field
--   Save and deploy
-
-### pyatv (python library)
-Thanks Pierre Ståhl [pyatv](https://github.com/postlund/pyatv)
+### pyatv (cli)
 
 #### How to install pyatv [Official Documentation](https://pyatv.dev/documentation/#installing-pyatv)
 
@@ -35,7 +39,7 @@ $ sudo pip3 install --upgrade pyatv
 ```
 #### How to install pyatv [(Official Node-RED Docker)](https://hub.docker.com/r/nodered/node-red)
 
-**Exec to Docker use user !!! ROOT !!!**
+#### Exec to Docker use user !!! ROOT !!!
 
 ```bash
 $ docker exec -it --user root mynodered bash
@@ -49,11 +53,15 @@ docker$ apk add openssl-dev libffi-dev python3-dev
 docker$ pip3 install --upgrade wheel pyatv
 ```
 
+#### How to use pyatv in venv
+
+[Creation of virtual environments](https://docs.python.org/3/library/venv.html) then in node **OUT** set Path where atvremote/atvscript
+
 #### How to get Credentials AirPlay and Companion
 
 ```bash
-$ atvremote --id 00:11:22:33:44:54 --protocol airplay pair
 $ atvremote --id 00:11:22:33:44:54 --protocol companion pair
+$ atvremote --id 00:11:22:33:44:54 --protocol airplay pair
 ```
 
 ### Output
@@ -80,13 +88,14 @@ A very simple node that takes the following commands as a string on msg.payload
 -   volumeDown
 -   volumeUp
 -   wakeup
+-   turnOff
+-   turnOn
 
-#### pyatv (python library) (experimental)
+#### Experimental
 
--   launch_app
 -   play_url
--   turn_on
--   turn_off
+-   stream_file
+-   launch_app
 
 ### Input
 Events from Apple TV on msg.payload

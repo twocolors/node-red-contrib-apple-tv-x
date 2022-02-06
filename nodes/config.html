@@ -7,171 +7,157 @@
   <div class="form-row">
     <label for="node-config-input-backend"><i class="fa fa-pencil"></i> Backend</label>
     <select id="node-config-input-backend" style="width: 70%;">
-      <option value="native">native (no support tvOS 15)</option>
-      <option value="pyatv">pyatv (python library)</option>
+      <option value="pyatv-cli">pyatv (cli)</option>
+      <!-- <option value="pyatv-api" disabled>pyatv (api-json)</option> -->
     </select>
   </div>
 
-  <div class="form-row">
-    <label for="node-config-input-atv"><i class="fa fa-tv"></i> Apple TV</label>
-    <input type="text" id="node-config-input-atv" placeholder="Apple TV (Id/Host)" style="width: 60%;">
-    <a id="node-config-input-scan" class="red-ui-button" style="margin-left: 10px;"><i class="fa fa-search"></i></a>
+  <div class="form-row" id="support-pyatv-cli" style="display: none;">
+    <label for="node-config-input-path"><i class="fa fa-folder"></i> Path</label>
+    <input type="text" id="node-config-input-path" placeholder="/home/pyatv/.local/bin">
   </div>
 
-  <div class="form-row" id="native-pairing">
-    <label>
-      <i class="fa fa-retweet"></i>
-      Pairing
-    </label>
-    <a id="node-config-input-conn" class="editor-button" title="Select an Apple TV above">
-      Initiate Connection
-    </a>
-    <label style="margin-left: 10px; width: 30px !important;">
-      Pin:
-    </label>
-    <input type="number" id="node-config-input-pincode" style="width: 85px; margin-left: 10px;">
-    <a id="node-config-input-pair" style="vertical-align: middle; margin-left: 10px;" class="editor-button">
-      <i class="fa fa-check-square"></i>
-    </a>
+  <div class="form-row" id="support-pyatv-api" style="display: none;">
+    <label for="node-config-input-url"><i class="fa fa-globe"></i> Url</label>
+    <input type="text" id="node-config-input-url" placeholder="http://pyatv.local:8080">
   </div>
 
   <div class="form-row">
-    <label for="node-config-input-token"><i class="fa fa-key"></i> <span id="pyatv-airplay">Token</span></label>
-    <input type="text" id="node-config-input-token" placeholder="Token">
+    <label for="node-config-input-identifier"><i class="fa fa-tv"></i> Apple TV</label>
+    <div style="display: inline-block; position: relative; width: 70%; height: 20px;">
+      <div style="position: absolute; left: 0; right: 42px;">
+        <input type="text" id="node-config-input-identifier" style="width: 100%;" placeholder="Identifier or Host">
+      </div>
+      <a id="node-config-input-scan" class="editor-button" style="position: absolute; right: 0; top: 0; width: 32px;"><i class="fa fa-search"></i></a>
+    </div>
   </div>
 
-  <div id="pyatv">
-  <div class="form-row" id="pyatv-companion">
+  <div class="form-row">
     <label for="node-config-input-companion"><i class="fa fa-key"></i> Companion</label>
-    <input type="text" id="node-config-input-companion" placeholder="Token">
+    <input type="text" id="node-config-input-companion" placeholder="Credentials">
+  </div>
+
+  <div class="form-row">
+    <label for="node-config-input-airplay"><i class="fa fa-key"></i> AirPlay</label>
+    <input type="text" id="node-config-input-airplay" placeholder="Credentials">
   </div>
 
   <div class="form-row">
     <label for="node-config-input-debug"><i class="fa fa-share-square"></i> Debug</label>
-    <input type="checkbox" id="node-config-input-debug" style="display: inline-block; width: auto; vertical-align: top;" autocomplete="off">
+    <input type="checkbox" id="node-config-input-debug" style="display: inline-block; width: auto; vertical-align: top;">
   </div>
-  </div>
-
 </script>
 
-<script type="text/html" data-help-name="atvx-config">
-  <p>Connection to Apple TV</p>
+<script type="text/x-red" data-help-name="atvx-config">
+  <p>Setting for pyatv</p>
   <h3>Configuration</h3>
   <dl class="message-properties">
-    <dt class="optional">Name<span class="property-type">string</span></dt>
-    <dd>Choose any name to identify your node</dd>
-    <dt class="required">Token (native)<span class="property-type">string</span></dt>
-    <dd>Apple TV pairing Token</dd>
-    <dt class="required">AirPlay (pyatv)<span class="property-type">string</span></dt>
-    <dd>Apple TV pairing AirPlay credentials</dd>
-    <dt class="required">Companion (pyatv)<span class="property-type">string</span></dt>
-    <dd>Apple TV pairing Companion credentials</dd>
+    <dt class="optional">Name <span class="property-type">string</span></dt><dd>Choose any name to identify your node</dd>
+    <dt class="required">Backend <span class="property-type">string</span></dt><dd>Select backend for pyatv</dd>
+    <dt class="optional">Path <span class="property-type">string</span></dt><dd>Path where custom pyatv (Optional)</dd>
+    <dt class="required">Url <span class="property-type">string</span></dt><dd>Url where api-json pyatv</dd>
+    <dt class="required">Apple TV <span class="property-type">string</span></dt><dd>Choose Apple TV</dd>
+    <dt class="required">Companion <span class="property-type">string</span></dt><dd>Credentials Companion for Apple TV</dd>
+    <dt class="required">AirPlay <span class="property-type">string</span></dt><dd>Credentials AirPlay for Apple TV</dd>
+    <dt class="optional">Debug <span class="property-type">string</span></dt><dd>Debug for pyatv</dd>
   </dl>
 </script>
 
 <script type="text/javascript">
-  RED.nodes.registerType('atvx-config', {
-    category: 'config',
+  RED.nodes.registerType("atvx-config", {
+    category: "config",
+    paletteLabel: "config",
     defaults: {
-      name: { value: '' },
-      backend: { value: 'native' },
-      companion: { value: '', required: true },
+      name: {},
+      backend: { value: "pyatv-cli" },
       debug: { value: false },
+      path: {}, //pyatv-cli
+      url: {},  //pyatv-api
     },
     credentials: {
-      atv: { type: 'text', required: true },
-      token: { type: 'text', required: true },
+      identifier: { required: true },
+      companion: { required: true },
+      airplay: { required: true },
     },
     label: function () {
-      return (this.name || 'Apple TV');
+      return (this.name || "Apple TV");
     },
     oneditprepare: function () {
-      let node = this;
+      function toggleBackend() {
+        $("[id^=support-pyatv]").hide();
+        $("#support-" + $("#node-config-input-backend option:selected").val()).show();
+      }
+
+      function toggleSelect() {
+        var $val = $("#node-config-input-identifier").val();
+        $("#node-config-input-scan").html(`<i class="fa fa-search"></i>`);
+        $("#node-config-input-identifier").off("change");
+        $("#node-config-input-identifier").replaceWith(`<input type="text" id="node-config-input-identifier" style="width: 100%;">`);
+        $("#node-config-input-identifier").val($val);
+      }
+
+      function toggleInput() {
+        var $val = $("#node-config-input-identifier").val();
+        RED.notify(`Scan Apple TV devices ...`);
+
+        $("#node-config-input-identifier").prop("disabled", true);
+        $.getJSON("atvx/scan", {
+          backend: $("#node-config-input-backend").val(),
+          path: $("#node-config-input-path").val(),
+          url: $("#node-config-input-url").val(),
+          debug: $("#node-config-input-debug").is(":checked"),
+        }).done(function (devices) {
+          if (devices.length === 0) {
+            RED.notify(`No Apple TV devices found`, "error");
+            $("#node-config-input-identifier").prop("disabled", false);
+            return;
+          }
+
+          if (typeof devices.error !== "undefined") {
+            RED.notify(devices.error, "error");
+            $("#node-config-input-identifier").prop("disabled", false);
+            return;
+          }
+
+          $("#node-config-input-scan").html(`<i class="fa fa-i-cursor"></i>`);
+          $("#node-config-input-identifier").replaceWith(`<select id="node-config-input-identifier" style="width: 100%;"></select>`);
+          devices.forEach(function(device) {
+            $("#node-config-input-identifier").append(`<option value="${device.identifier}" data-host="${device.host}" data-name="${device.name}" data-identifier="${device.identifier}">${device.name} (${device.identifier})</option>`);
+          });
+
+          $("#node-config-input-identifier").on("change", changeName);
+          if (devices.length === 1) {
+            $val = devices[0].identifier;
+          }
+
+          $("#node-config-input-identifier").val($val);
+          $("#node-config-input-identifier").prop("disabled", false);
+
+          if (devices.length === 1) {
+            changeName();
+          }
+        });
+      }
+
+      function changeName() {
+        $("#node-config-input-name").val($("#node-config-input-identifier option:selected").data("name"));
+      }
+
+      $("#node-config-input-scan").click(function() {
+        if ($("#node-config-input-identifier").prop("tagName") === "INPUT") {
+          toggleInput();
+        } else {
+          toggleSelect();
+        }
+      });
 
       setTimeout(function () {
-        let $device = $('#node-config-input-atv').val();
-        if ($device && $device.match(/;/i)) {
-          $('#node-config-input-atv').replaceWith('<select id="node-config-input-atv" style="width: 60%;"></select>');
-          $('#node-config-input-atv').append('<option value="'+$device+'">'+$device.split(';')[0]+'</option>');
-        }
-
-        _backend();
+        toggleBackend();
       }, 150);
 
-      $('#node-config-input-backend').change(function() {
-        _backend();
+      $("#node-config-input-backend").change(function(){
+        toggleBackend();
       });
-
-      $('#node-config-input-scan').click(function() {
-        let $backend = $('#node-config-input-backend').val();
-        let $device  = $('#node-config-input-atv').val();
-
-        if ($backend) {
-          $('#node-config-input-atv').prop('disabled', true);
-          $.getJSON('atvx/discover', {
-            backend: $backend,
-          }).done(function (devices) {
-            $('#node-config-input-atv').prop('disabled', false);
-
-            if (devices.length === 0) {
-              RED.notify('No devices retrieved, check your Apple TVs connection settings', 'error');
-              return;
-            }
-
-            if (typeof (devices.error) !== 'undefined') {
-              RED.notify(devices.error, 'error');
-              return;
-            }
-
-            $('#node-config-input-atv').replaceWith('<select id="node-config-input-atv" style="width: 60%;"></select>');
-            $('#node-config-input-atv').children().remove();
-            devices.forEach(function (device) {
-              if (!$device || $device.split(';')[1] != device.uid) {
-                $('#node-config-input-atv').append('<option value="' + device.name + ';' + device.uid + '" data-name="' + device.name + '" data-id="' + device.uid + '">' + device.name + '</option>');
-              }
-            });
-
-            if ($device) { $('#node-config-input-atv').append('<option value="'+$device+'">'+$device.split(';')[0]+'</option>').val($device); }
-          });
-        }
-      });
-
-      $('#node-config-input-pair').click(function() {
-        let $pincode = $('#node-config-input-pincode').val();
-        if ($pincode) {
-          $.getJSON('atvx/pincode', {
-            pincode: $pincode
-          });
-        }
-      });
-
-      $('#node-config-input-conn').click(function() {
-        let $device  = $('#node-config-input-atv').val();
-        if ($device) {
-          $.getJSON('atvx/pair', {
-            device: $device,
-          }).done(function (data) {
-            if (!data.error) {
-              if (data.token) $('#node-config-input-token').val(data.token);
-            } else {
-              RED.notify(data.error, 'error');
-            }
-          });
-        }
-      });
-
-      function _backend() {
-        let $backend = $('#node-config-input-backend').val();
-        if ($backend == 'native') {
-          $('#native-pairing').show();
-          $('#pyatv-airplay').text('Token');
-          $('#pyatv').hide();
-        } else {
-          $('#native-pairing').hide();
-          $('#pyatv-airplay').text('AirPlay');
-          $('#pyatv').show();
-        }
-      }
     }
   });
 </script>
