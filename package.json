@@ -3,7 +3,7 @@
   "license": "GPL",
   "name": "node-red-contrib-apple-tv-x",
   "description": "Nodes for controlling Apple TVs in Node-RED (wrapper pyatv)",
-  "version": "0.5.2",
+  "version": "1.0.0",
   "node-red": {
     "version": ">=1.0.0",
     "nodes": {
