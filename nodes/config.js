@@ -33,11 +33,7 @@ module.exports = function (RED) {
       if (event.key != "dateTime") {
         node.updateStatus({ color: "green", text: "connected" });
       }
-
-      let obj = {};
-      obj[event.key] = event.value;
-
-      node.emit("updateMessage", obj);
+      node.emit("updateMessage", {[event.key]:event.value});
     };
 
     node.doConnectCli = async () => {
