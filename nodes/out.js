@@ -30,25 +30,23 @@ module.exports = function (RED) {
     this.on("input", function (msg) {
       if (node.atvxConfig.connect) {
         if (node.atvxConfig.backend == "pyatv-cli") {
-          let command = msg.payload.replace(/(?:^|\s|["'([{])+\S/g, (match) =>
+          let payload = msg.payload.replace(/(?:^|\s|["'([{])+\S/g, (match) =>
             match.toLowerCase()
           );
-          let key = types_1.NodePyATVInternalKeys[command];
-          if (typeof key !== "undefined") {
-            node.atvxConfig.connect.pressKey(command).catch((error) => {
+          let command = payload.split("=")[0];
+          if (typeof types_1.NodePyATVInternalKeys[payload] !== "undefined") {
+            node.atvxConfig.connect.pressKey(payload).catch((error) => {
               _errorCli(error);
             });
           } else if (
-            ["play_url", "stream_file", "launch_app"].includes(
-              command.split("=")[0]
-            )
+            ["play_url", "stream_file", "launch_app"].includes(command)
           ) {
             node.atvxConfig.connect._pressKey(
-              command,
+              payload,
               types_1.NodePyATVExecutableType.atvremote
             );
           } else {
-            _errorCli(`Unsupported command: ${command}`);
+            _errorCli(`Unsupported command: ${payload}`);
           }
         }
       }
