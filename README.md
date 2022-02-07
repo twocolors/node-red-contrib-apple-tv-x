@@ -7,10 +7,11 @@
 [![platform](https://img.shields.io/badge/platform-Node--RED-red?logo=nodered)](https://nodered.org)
 [![Min Node Version](https://img.shields.io/node/v/node-red-contrib-apple-tv-x.svg)](https://nodejs.org/en/)
 [![GitHub version](https://img.shields.io/github/package-json/v/twocolors/node-red-contrib-apple-tv-x?logo=npm)](https://www.npmjs.com/package/node-red-contrib-apple-tv-x)
+[![GitHub stars](https://img.shields.io/github/stars/twocolors/node-red-contrib-apple-tv-x)](https://github.com/twocolors/node-red-contrib-apple-tv-x/stargazers)
 [![Package Quality](https://packagequality.com/shield/node-red-contrib-apple-tv-x.svg)](https://packagequality.com/#?package=node-red-contrib-apple-tv-x)
 
 [![issues](https://img.shields.io/github/issues/twocolors/node-red-contrib-apple-tv-x?logo=github)](https://github.com/twocolors/node-red-contrib-apple-tv-x/issues)
-![GitHub last commit](https://img.shields.io/github/last-commit/twocolors/node-red-contrib-apple-tv-x/master)
+![GitHub last commit](https://img.shields.io/github/last-commit/twocolors/node-red-contrib-apple-tv-x)
 ![NPM Total Downloads](https://img.shields.io/npm/dt/node-red-contrib-apple-tv-x.svg)
 ![NPM Downloads per month](https://img.shields.io/npm/dm/node-red-contrib-apple-tv-x)
 ![Repo size](https://img.shields.io/github/repo-size/twocolors/node-red-contrib-apple-tv-x)
