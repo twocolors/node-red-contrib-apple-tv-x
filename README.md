@@ -38,7 +38,7 @@ Tested models are:
 $ sudo apt-get install build-essential libssl-dev libffi-dev python3-dev python3-pip python3-cryptography python3-wheel
 $ sudo pip3 install --upgrade pyatv
 ```
-#### How to install pyatv [(Official Node-RED Docker)](https://hub.docker.com/r/nodered/node-red)
+#### How to install pyatv [(Official Node-RED Docker)](https://hub.docker.com/r/nodered/node-red) based on Alpine Linux 3.12.9
 
 #### Exec to Docker use user !!! ROOT !!!
 
@@ -49,9 +49,10 @@ $ docker exec -it --user root mynodered bash
 in docker
 
 ```bash
-docker$ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs -o rust.sh && sh rust.sh -y && rm rust.sh && source $HOME/.cargo/env
-docker$ apk add openssl-dev libffi-dev python3-dev
-docker$ pip3 install --upgrade wheel pyatv
+apk add openssl-dev libffi-dev python3-dev py3-pip
+pip3 install --upgrade wheel
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs -o rust.sh && sh rust.sh -y && rm rust.sh && source $HOME/.cargo/env
+pip3 install --upgrade pyatv
 ```
 
 #### How to use pyatv in venv
