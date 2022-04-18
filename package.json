@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@sebbo2002/node-pyatv": "^4.3.0",
-    "semver": "7.3.5"
+    "semver": "7.3.7"
   },
   "bugs": {
     "url": "https://github.com/twocolors/node-red-contrib-apple-tv-x/issues"
