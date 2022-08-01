@@ -6,6 +6,8 @@ module.exports = function (RED) {
     this.atvx = n.atvx;
     this.atvxConfig = RED.nodes.getNode(this.atvx);
 
+    if (!this.atvxConfig) return;
+
     let node = this;
 
     node.state = {
@@ -43,11 +45,14 @@ module.exports = function (RED) {
       node.send({ payload: node.state });
     };
 
-    if (node.atvxConfig) {
-      node.onStatus({ color: "grey", text: "initiate ..." });
-      node.atvxConfig.on("updateStatus", node.onStatus);
-      node.atvxConfig.on("updateMessage", node.onMessage);
-    }
+    node.onStatus({ color: "grey", text: "initiate ..." });
+    node.atvxConfig.on("updateStatus", node.onStatus);
+    node.atvxConfig.on("updateMessage", node.onMessage);
+
+    node.on("close", () => {
+      node.atvxConfig.removeListener("updateStatus", node.onStatus);
+      node.atvxConfig.removeListener("updateMessage", node.onMessage);
+    });
   }
   RED.nodes.registerType("atvx-in", ATVxIn);
 };
