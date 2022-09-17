@@ -39,7 +39,7 @@ module.exports = function (RED) {
     this.on("input", function (msg, send, done) {
       let start = new Date().getTime();
 
-      function _return(error, targetFile) {
+      function _return(error, data, targetFile) {
         if (
           node.skip_deprecated &&
           error.toString().match(/pyatv.*DeprecationWarning/i)
@@ -56,7 +56,8 @@ module.exports = function (RED) {
           node.error(error);
         } else {
           let elapsed = (new Date().getTime()) - start;
-          msg.playload = {
+          msg.payload = {
+            data: data,
             elapsed: elapsed
           };
           (send) ? send(msg) : node.send(msg);
@@ -81,23 +82,19 @@ module.exports = function (RED) {
           let command = payload.split("=")[0];
           if (typeof types_1.NodePyATVInternalKeys[payload] !== "undefined") {
             node.atvxConfig.connect.pressKey(payload).catch((error) => {
-              _return(error, targetFile);
-            }).then(() => {
-              _return(false, targetFile)
+              _return(error, {}, targetFile);
+            }).then((data) => {
+              _return(false, data, targetFile)
             });
-          } else if (
-            ["play_url", "stream_file", "launch_app"].includes(command)
-          ) {
+          } else {
             node.atvxConfig.connect._pressKey(
               payload,
               types_1.NodePyATVExecutableType.atvremote
             ).catch((error) => {
-              _return(error, targetFile);
-            }).then(() => {
-              _return(false, targetFile)
+              _return(error, {}, targetFile);
+            }).then((data) => {
+              _return(false, data, targetFile)
             });
-          } else {
-            _return(`Unsupported command: ${payload}`);
           }
         }
       }

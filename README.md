@@ -111,6 +111,10 @@ Usage `stream_file=/tmp/myfile.mp4`
 
 Usage `launch_app=com.netflix.Netflix`
 
+##### set_volume
+
+Usage `set_volume=100`
+
 ##### stream
 
 This is a special command added for usage with NodeRED. This uses `stream_file` to play data from a buffer.
