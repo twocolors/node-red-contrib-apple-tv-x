@@ -95,9 +95,34 @@ A very simple node that takes the following commands as a string on msg.payload
 
 #### Experimental
 
--   play_url
--   stream_file
--   launch_app
+ - play_url
+ - stream_file
+ - launch_app
+
+##### play_url
+
+Usage `play_url=https://www.example.com/mymovie.mp4` 
+
+##### stream_file
+
+Usage `stream_file=/tmp/myfile.mp4`
+
+##### launch_app
+
+Usage `launch_app=com.netflix.Netflix`
+
+##### stream
+
+This is a special command added for usage with NodeRED. This uses `stream_file` to play data from a buffer.
+
+Example:
+
+```
+{
+  payload: "stream",
+  buffer: atob("UklGRqReAABXQVZFZm10IBAAAAABAAEAgD4AAAB9AAACABAAZGF0YYBeAAAAAAAAAAAAAAAAAAAA....")
+}
+```
 
 ### Input
 Events from Apple TV on msg.payload
