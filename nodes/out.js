@@ -1,3 +1,6 @@
+const fs = require('fs');
+const crypto = require('crypto');
+
 module.exports = function (RED) {
   "use strict";
 
@@ -10,6 +13,12 @@ module.exports = function (RED) {
     this.skip_deprecated = n.skip_deprecated;
 
     let node = this;
+
+    node.shm = true;
+
+    if (!fs.existsSync('/dev/shm')) {
+      node.shm = false;
+    }
 
     node.status({});
 
@@ -27,16 +36,54 @@ module.exports = function (RED) {
       }, 3.5 * 1000);
     };
 
-    this.on("input", function (msg) {
+    this.on("input", function (msg, send, done) {
+      let start = new Date().getTime();
+
+      function _return(error, targetFile) {
+        if (
+          node.skip_deprecated &&
+          error.toString().match(/pyatv.*DeprecationWarning/i)
+        ) {
+          error = false;
+        }
+
+        if (targetFile) {
+          fs.unlinkSync(targetFile);
+        }
+
+        if (error) {
+          node.onStatus({ color: "red", text: "error" });
+          node.error(error);
+        } else {
+          let elapsed = (new Date().getTime()) - start;
+          msg.playload = {
+            elapsed: elapsed
+          };
+          (send) ? send(msg) : node.send(msg);
+          if (done) { done(); }
+        }
+      }
+
       if (node.atvxConfig.connect) {
         if (node.atvxConfig.backend == "pyatv-cli") {
           let payload = msg.payload.replace(/(?:^|\s|["'([{])+\S/g, (match) =>
             match.toLowerCase()
           );
+
+          let targetFile = false;
+          if (payload == "stream" && msg.buffer) {
+            let randomFileName = msg["_msgid"] + crypto.randomBytes(4).readUInt32LE(0);
+            targetFile = (node.shm) ? "/dev/shm/" + randomFileName : "/tmp/" + randomFileName;
+            fs.writeFileSync(targetFile, msg.buffer);
+            payload = "stream_file=" + targetFile;
+          }
+
           let command = payload.split("=")[0];
           if (typeof types_1.NodePyATVInternalKeys[payload] !== "undefined") {
             node.atvxConfig.connect.pressKey(payload).catch((error) => {
-              _errorCli(error);
+              _return(error, targetFile);
+            }).then(() => {
+              _return(false, targetFile)
             });
           } else if (
             ["play_url", "stream_file", "launch_app"].includes(command)
@@ -44,26 +91,17 @@ module.exports = function (RED) {
             node.atvxConfig.connect._pressKey(
               payload,
               types_1.NodePyATVExecutableType.atvremote
-            );
+            ).catch((error) => {
+              _return(error, targetFile);
+            }).then(() => {
+              _return(false, targetFile)
+            });
           } else {
-            _errorCli(`Unsupported command: ${payload}`);
+            _return(`Unsupported command: ${payload}`);
           }
         }
       }
     });
-
-    function _errorCli(error) {
-      if (error) {
-        if (
-          node.skip_deprecated &&
-          error.toString().match(/pyatv.*DeprecationWarning/i)
-        ) {
-          return;
-        }
-        node.onStatus({ color: "red", text: "error" });
-        node.error(error);
-      }
-    }
   }
   RED.nodes.registerType("atvx-out", ATVxOut);
 };
