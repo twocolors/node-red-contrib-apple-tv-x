@@ -39,7 +39,7 @@ module.exports = function (RED) {
               _errorCli(error);
             });
           } else if (
-            ["play_url", "stream_file", "launch_app"].includes(command)
+            ["play_url", "stream_file", "launch_app", "set_volume"].includes(command)
           ) {
             node.atvxConfig.connect._pressKey(
               payload,

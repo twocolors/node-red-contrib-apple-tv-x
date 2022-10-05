@@ -3,7 +3,7 @@
   "license": "GPL",
   "name": "node-red-contrib-apple-tv-x",
   "description": "Nodes for controlling Apple TVs in Node-RED (wrapper pyatv)",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "node-red": {
     "version": ">=2.2.0",
     "nodes": {
@@ -13,8 +13,8 @@
     }
   },
   "dependencies": {
-    "@sebbo2002/node-pyatv": "^4.3.0",
-    "semver": "7.3.5"
+    "@sebbo2002/node-pyatv": "^5.1.0",
+    "semver": "7.3.7"
   },
   "bugs": {
     "url": "https://github.com/twocolors/node-red-contrib-apple-tv-x/issues"

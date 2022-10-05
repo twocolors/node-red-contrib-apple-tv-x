@@ -98,6 +98,23 @@ A very simple node that takes the following commands as a string on msg.payload
 -   play_url
 -   stream_file
 -   launch_app
+-   set_volume
+
+##### play_url
+
+Usage `play_url=https://www.example.com/mymovie.mp4`
+
+##### stream_file
+
+Usage `stream_file=/tmp/myfile.mp4`
+
+##### launch_app
+
+Usage `launch_app=com.netflix.Netflix`
+
+##### set_volume
+
+Usage `set_volume=100`
 
 ### Input
 Events from Apple TV on msg.payload
