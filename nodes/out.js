@@ -1,7 +1,7 @@
 module.exports = function (RED) {
   "use strict";
 
-  const types_1 = require("@sebbo2002/node-pyatv/dist/lib/types");
+  const pyatv = require("@sebbo2002/node-pyatv");
 
   function ATVxOut(n) {
     RED.nodes.createNode(this, n);
@@ -34,7 +34,7 @@ module.exports = function (RED) {
             match.toLowerCase()
           );
           let command = payload.split("=")[0];
-          if (typeof types_1.NodePyATVInternalKeys[payload] !== "undefined") {
+          if (typeof pyatv.NodePyATVInternalKeys[payload] !== "undefined") {
             node.atvxConfig.connect.pressKey(payload).catch((error) => {
               _errorCli(error);
             });
@@ -43,7 +43,7 @@ module.exports = function (RED) {
           ) {
             node.atvxConfig.connect._pressKey(
               payload,
-              types_1.NodePyATVExecutableType.atvremote
+              pyatv.NodePyATVExecutableType.atvremote
             );
           } else {
             _errorCli(`Unsupported command: ${payload}`);
