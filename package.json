@@ -13,7 +13,7 @@
     }
   },
   "dependencies": {
-    "@sebbo2002/node-pyatv": "^6.0.2",
+    "@sebbo2002/node-pyatv": "^7.0.1",
     "semver": "7.5.4"
   },
   "bugs": {
